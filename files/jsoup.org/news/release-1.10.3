@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup release 1.10.3 (2017-Jun-11)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="Better performance of CSS selectors, Jsoup.Connection improvements, and other bug fixes."> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup release 1.10.3 (2017-Jun-11)"> 
+  <meta name="twitter:description" content="Better performance of CSS selectors, Jsoup.Connection improvements, and other bug fixes."> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup Java HTML Parser release 1.10.3 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup Java HTML Parser release 1.10.3</h1> 
+     <p><code>2017-Jun-11</code></p> 
+     <p><b>jsoup 1.10.3</b> features better performance of CSS selectors, Jsoup.Connection improvements, and other bug fixes.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <p><a href="/download"><b>Download</b></a> jsoup now.</p> 
+     <h2>Improvements</h2> 
+     <ul> 
+      <li>Added <code><a href="/apidocs/org/jsoup/select/Elements.html#eachText--" title="Get the text content of each of the matched elements.">Elements.eachText()</a></code> and <code><a href="/apidocs/org/jsoup/select/Elements.html#eachAttr-java.lang.String-" title="Get the attribute value for each of the matched elements.">Elements.eachAttr()</a></code>, which return a list of an <code>Element's</code> text or attribute values, respectively. This makes it simpler to for example get a list of each URL on a page: <code>List&lt;String&gt; urls = doc.select("a").eachAttr("abs:href"");</code></li> 
+      <li>Improved selector validation for <code>:contains(...)</code> with unbalanced quotes.</li> 
+      <li>Improved the speed of index based CSS selectors and other methods that use elementSiblingIndex, by a factor of 34x.</li> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/Node.html#clearAttributes--" title="Clear (remove) all of the attributes in this node.">Node.clearAttributes()</a></code>, to simplify removing of all attributes of a <code><a href="/apidocs/org/jsoup/nodes/Node.html" title="The base, abstract Node model.">Node</a></code> / <code><a href="/apidocs/org/jsoup/nodes/Element.html" title="A HTML element consists of a tag name, attributes, and child nodes (including text nodes and other elements).">Element</a></code>.</li> 
+     </ul> 
+     <h2>Fixes</h2> 
+     <ul> 
+      <li>Bugfix: if an attribute name started or ended with a control character, the parse would fail with a validation exception.</li> 
+      <li>Bugfix: <code><a href="/apidocs/org/jsoup/nodes/Element.html#hasClass-java.lang.String-" title="Tests if this element has a class.">Element.hasClass()</a></code> and the <code>.classname</code> selector would not find the class attribute case-insensitively.</li> 
+      <li>Bugfix: In <code>Jsoup.Connection</code>, if a redirect contained a query string with <code>%xx</code> escapes, they would be double escaped before the redirect was followed, leading to fetching an incorrect location.</li> 
+      <li>Bugfix: In <code>Jsoup.Connection</code>, if a request body was set and the connection was redirected, the body would incorrectly still be sent.</li> 
+      <li>Bugfix: In <code><a href="/apidocs/org/jsoup/helper/DataUtil.html" title="Internal static utilities for handling data.">DataUtil</a></code> when detecting the character set from meta data, and there are two Content-Types defined, use the one that defines a character set.</li> 
+      <li>Bugfix: when parsing unknown tags in case-sensitive HTML mode, end tags would not close scope correctly.</li> 
+      <li>In <code>Jsoup.Connection</code>, ensure there is no Content-Type set when being redirected to a GET.</li> 
+      <li>Bugfix: in certain locales (Turkish specifically), lowercasing and case insensitivity could fail for specific items.</li> 
+     </ul> 
+     <p>Many thanks to everyone who contributed patches, suggestions, and bug reports. If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="https://jhy.io/">directly</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

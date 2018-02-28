@@ -1,0 +1,81 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup release 1.9.2 (2016-May-17)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="jsoup 1.9.2 Bug Fix Release"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup release 1.9.2 (2016-May-17)"> 
+  <meta name="twitter:description" content="jsoup 1.9.2 Bug Fix Release"> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup release 1.9.2 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup release 1.9.2</h1> 
+     <p><code>2016-May-17</code></p> 
+     <p><b>jsoup 1.9.2</b> is a quick release to fix an issue where the parser could get stuck in an infinite loop on tags that contained mixed ascii and non-ascii characters. It also addresses some other minor issues.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <p><a href="/download"><b>Download</b></a> jsoup now.</p> 
+     <h2>Improvements</h2> 
+     <ul> 
+      <li>In XML documents, detect the charset from the XML prolog -- <code>&lt;?xml encoding="UTF-8"?&gt;</code></li> 
+     </ul> 
+     <h2>Bug Fixes</h2> 
+     <ul> 
+      <li>Fixed an issue where tag names that contained non-ascii characters but started with an ascii character would cause the parser to get stuck in an infinite loop.</li> 
+      <li>Fixed an issue where API created XML documents would have an incorrect prolog.</li> 
+      <li>Fixed an issue where you could not use an attribute selector to find values containing unbalanced braces or parentheses.</li> 
+      <li>Fixed an issue where namespaced tags (like <code>&lt;fb:comment&gt;</code>) would cause <code><a href="/apidocs/org/jsoup/nodes/Element.html#cssSelector--" title="Get a CSS selector that will uniquely select this element.">Element.cssSelector()</a></code> to fail.</li> 
+     </ul> 
+     <p>Many thanks to everyone who contributed patches, suggestions, and bug reports. If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="http://jhy.io/">directly</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

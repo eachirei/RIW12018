@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>Mailing lists: jsoup HTML parser</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="Mailing list details for the jsoup HTML parser"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="Mailing lists: jsoup HTML parser"> 
+  <meta name="twitter:description" content="Mailing list details for the jsoup HTML parser"> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-discussion"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup discussion 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup discussion</h1> 
+     <p>If you have a question on how to use <code>jsoup</code>, please post in on <a href="http://stackoverflow.com/questions/tagged/jsoup"><b>Stack Overflow</b></a>. Use the <code>jsoup</code> tag. Your question will be seen an answered sooner than if it is posted to the list. (And it may have already been answered.)</p> 
+     <p>For general <code>jsoup</code> discussion, including development discussion, please join the <a href="http://groups.google.com/group/jsoup/"><b>jsoup mailing list</b></a> by mailing <a href="mailto:jsoup+subscribe@googlegroups.com"><b>jsoup+subscribe@googlegroups.com</b></a>.</p> 
+     <p>Post by sending mail to <a href="mailto:jsoup@googlegroups.com"><b>jsoup@googlegroups.com</b></a>. You're welcome to post without being subscribed, but you will need to watch the <a href="http://groups.google.com/group/jsoup/topics">topic archive</a> to get the replies.</p> 
+     <p>To avoid spam, your first email to the group will be moderated. Please be patient and send only once: as soon as a moderator reads your email it will be sent on to the group.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

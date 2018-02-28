@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup release 1.7.3 (2013-Nov-10)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="Improved form handling, better HTTP character-set detection, faster &amp; lighter, and bug fixes."> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup release 1.7.3 (2013-Nov-10)"> 
+  <meta name="twitter:description" content="Improved form handling, better HTTP character-set detection, faster &amp; lighter, and bug fixes."> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup release 1.7.3 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup release 1.7.3</h1> 
+     <p><code>2013-Nov-10</code></p> 
+     <p><b>jsoup 1.7.3</b> introduces improved form handling, more robust character-set detection, speed and memory optimisations in parsing and CSS selectors, and a set of bug fixes.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <h2>Improvements</h2> 
+     <ul> 
+      <li>Added the element type <code><a href="/apidocs/org/jsoup/nodes/FormElement.html" title="A HTML Form Element provides ready access to the form fields/controls that are associated with it.">FormElement</a></code>, to facilitate simple form submissions. Find forms in a doc using <code><a href="/apidocs/org/jsoup/select/Elements.html#forms--" title="Get the FormElement forms from the selected elements, if any.">Elements.forms()</a></code>, then prepare it for submission with <code><a href="/apidocs/org/jsoup/nodes/FormElement.html#submit--" title="Prepare to submit this form.">FormElement.submit()</a></code>.</li> 
+      <li>Improved the reliability of HTTP character-set recognition from response headers, particularly for when servers return out-of-spec responses.</li> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/Document.html#location--" title="Get the URL this Document was parsed from.">Document.location()</a></code> to retrieve the document's location URL. Handy if the request was redirected from the original URL.</li> 
+      <li>Large decrease in the amount of temporary objects created during parsing, leading to less GC load (helpful particularly on Android), and faster parsing.</li> 
+      <li>Improved the time to match elements with common CSS selectors by ~ 27%.</li> 
+     </ul> 
+     <h2>Bug Fixes</h2> 
+     <ul> 
+      <li>Fixed support for self-closing script tags.</li> 
+      <li>Fixed a crash when reading an unterminated CDATA section.</li> 
+      <li>Fixed an issue where elements added via the adoption agency algorithm did not preserve their attributes.</li> 
+      <li>Fixed an issue when cloning a document with extremely nested elements that could cause a stack-overflow.</li> 
+      <li>Fixed an issue when connecting or redirecting to a URL that contains a space.</li> 
+     </ul> 
+     <p>Many thanks to everyone who contributed patches, suggestions, and bug reports. If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="http://jonathanhedley.com/contact">directly</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

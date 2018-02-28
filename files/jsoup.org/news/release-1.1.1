@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup version 1.1.1 released (2010-Jun-08)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content=""> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup version 1.1.1 released (2010-Jun-08)"> 
+  <meta name="twitter:description" content=""> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup version 1.1.1 released 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup version 1.1.1 released</h1> 
+     <p><code>2010-Jun-08</code> I am pleased to announce that <b>jsoup version 1.1.1</b> is now available for <a href="/download"><b>download</b></a>.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <h2>What's new</h2> 
+     <ul> 
+      <li>Added selector support for <code>:eq</code>, <code>:lt</code>, and <code>:gt</code> (<a href="http://github.com/jhy/jsoup/issues/issue/16">issue #16</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/TextNode.html#text--" title="Get the text content of this text node.">TextNode.text()</a></code> and <code><a href="/apidocs/org/jsoup/nodes/TextNode.html#text-java.lang.String-" title="Set the text content of this text node.">TextNode.text(String)</a></code> (<a href="http://github.com/jhy/jsoup/issues/issue/18">issue #18</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Throw exception if trying to parse non-text content (<a href="http://github.com/jhy/jsoup/issues/issue/17">issue #17</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/Node.html#remove--" title="Remove (delete) this node from the DOM tree.">Node.remove()</a></code> and <code><a href="/apidocs/org/jsoup/nodes/Node.html#replaceWith-org.jsoup.nodes.Node-" title="Replace this node in the DOM with the supplied node.">Node.replaceWith(Node)</a></code> (<a href="http://github.com/jhy/jsoup/issues/issue/19">issue #19</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Allow <code>_</code> and <code>-</code> in CSS ID selectors (per CSS spec). (<a href="http://github.com/jhy/jsoup/issues/issue/10">issue #10</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Relative links are resolved to absolute when cleaning, to normalize output and to verify safe protocol. (Were previously discarded.) (<a href="http://github.com/jhy/jsoup/issues/issue/12">issue #12</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Allow combinators at start of selector query, for query refinements (<a href="http://github.com/jhy/jsoup/issues/issue/13">issue #13</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/Element.html#val--" title="Get the value of a form element (input, textarea, etc).">Element.val()</a></code> and Element.<code><a href="/apidocs/org/jsoup/select/Elements.html#val-java.lang.String-" title="Set the form element's value in each of the matched elements.">val(String)</a></code> methods, for form values (<a href="http://github.com/jhy/jsoup/issues/issue/14">issue #14</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Changed <code>textarea</code> contents to parse as <code>TextNodes</code>, not DataNodes, so contents visible to text() (and val(), as treated as form input)</li> 
+      <li>Fixed support for Java 1.5</li> 
+     </ul> 
+     <p>I would like to thank everyone that has tried jsoup and written in to me or to the mailing list with their experiences. Your input is directly shaping jsoup for the better.</p> 
+     <p>If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

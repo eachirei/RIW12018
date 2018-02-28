@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>Self-contained, and improved web connections: jsoup version 1.3.1 released (2010-Aug-23)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="The jsoup HTML parser now has now external dependencies, and is easier to use for web scraping."> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="Self-contained, and improved web connections: jsoup version 1.3.1 released (2010-Aug-23)"> 
+  <meta name="twitter:description" content="The jsoup HTML parser now has now external dependencies, and is easier to use for web scraping."> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> Self-contained, and improved web connections: jsoup version 1.3.1 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>Self-contained, and improved web connections: jsoup version 1.3.1</h1> 
+     <p><code>2010-Aug-23</code> I am pleased to announce that <b>jsoup version 1.3.1</b> is now available for <a href="/download"><b>download</b></a>.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <h2>Self-contained</h2> 
+     <p>In previous releases, jsoup depended on Apache Commons-Lang for some methods, such as HTML entity parsing. These methods have now been natively implemented, and jsoup now has no external dependencies. This is beneficial as the JVM memory overhead is lower, and it is easier for developers to get started using jsoup.</p> 
+     <h2>Improved web connections</h2> 
+     <p>jsoup now sports a convenient <code><a href="/apidocs/org/jsoup/Connection.html" title="A Connection provides a convenient interface to fetch content from the web, and parse them into Documents.">Connection</a></code> interface, available via <code><a href="/apidocs/org/jsoup/Jsoup.html#connect-java.lang.String-" title="Creates a new Connection to a URL.">Jsoup.connect(String url)</a></code>. This allows the developer to easily build a HTTP request, including specifying the user-agent, referrer, cookies, request headers, data parameters, and timeout. The response can be parsed directly into a <code><a href="/apidocs/org/jsoup/nodes/Document.html" title="A HTML Document.">Document</a></code>, or response headers and cookies may be retrieved.</p> 
+     <p>E.g.:</p> 
+     <pre><code class="prettyprint">Document doc = Jsoup.connect("http://example.com")
+  .data("query", "Java")
+  .userAgent("Mozilla")
+  .cookie("auth", "token")
+  .timeout(3000)
+  .post();  
+</code></pre> 
+     <p>HTTP requests now support gzip compression by default.</p> 
+     <p>The Connection interface is new and may change slightly in upcoming releases. Please get in touch if you have suggestions or find bugs.</p> 
+     <h2>Other improvements and bug fixes</h2> 
+     <ul> 
+      <li>Added the <code><a href="/apidocs/org/jsoup/nodes/Element.html#ownText--" title="Gets the text owned by this element only; does not get the combined text of all children.">Element.ownText()</a></code> method, to get only the direct text of an element, not including the text of its children.</li> 
+     </ul> 
+     <ul> 
+      <li>Added support for selectors :containsOwn(text) and :matchesOwn(regex), to supplement <code><a href="/apidocs/org/jsoup/nodes/Element.html#ownText--" title="Gets the text owned by this element only; does not get the combined text of all children.">Element.ownText()</a></code>.</li> 
+     </ul> 
+     <ul> 
+      <li>Added support for non-pretty-printed HTML output, to more closely mirror the input HTML. See <code><a href="/apidocs/org/jsoup/nodes/Document.OutputSettings.html#prettyPrint-boolean-" title="Enable or disable pretty printing.">Document.OutputSettings.prettyPrint(boolean)</a></code>.</li> 
+     </ul> 
+     <ul> 
+      <li>Further speed optimisations for parsing and output generation.</li> 
+     </ul> 
+     <ul> 
+      <li>Fixed support for case-sensitive HTML escape entities. (<a href="http://github.com/jhy/jsoup/issues/issue/31">issue #31</a>)</li> 
+     </ul> 
+     <ul> 
+      <li>Fixed issue when parsing tags with keyless attributes. (<a href="http://github.com/jhy/jsoup/issues/issue/32">issue #32</a>)</li> 
+     </ul> 
+     <p>Many thanks to everyone who has helped with this release of jsoup by contributing to the mailing lists, sending in bugs, and getting in touch with me.</p> 
+     <p>If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="http://jonathanhedley.com/contact">directly</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

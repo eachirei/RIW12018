@@ -1,0 +1,107 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>Download and install jsoup</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="Guide to downloading and installing the jsoup HTML parser library"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="Download and install jsoup"> 
+  <meta name="twitter:description" content="Guide to downloading and installing the jsoup HTML parser library"> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-download"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> </span> 
+    <span class="seperator">&raquo;</span> Download and install jsoup 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>Download and install jsoup</h1> 
+     <p><code>jsoup</code> is available as a downloadable <code>.jar</code> java library. The current release version is <b>1.11.2</b>.</p> 
+     <ul> 
+      <li><code><a href="/packages/jsoup-1.11.2.jar"><b>jsoup-1.11.2.jar</b></a></code> core library</li> 
+      <li><code><a href="/packages/jsoup-1.11.2-sources.jar">jsoup-1.11.2-sources.jar</a></code> optional sources jar</li> 
+      <li><code><a href="/packages/jsoup-1.11.2-javadoc.jar">jsoup-1.11.2-javadoc.jar</a></code> optional javadoc jar</li> 
+     </ul> 
+     <h2>What's new</h2> 
+     <p>See the <a href="/news/release-1.11.2">1.11.2 release announcement</a> for the latest changes, or the <a href="https://github.com/jhy/jsoup/blob/master/CHANGES">changelog</a> for the full history.</p> 
+     <p><a href="https://github.com/jhy/jsoup/releases">Previous releases</a> of jsoup are also available.</p> 
+     <h2>Maven</h2> 
+     <p>If you use <a href="http://maven.apache.org/">Maven</a> to manage the dependencies in your Java project, you do not need to download; just place the following into your POM's <code>&lt;dependencies&gt;</code> section:</p> 
+     <pre><code class="prettyprint">&lt;dependency&gt;
+  &lt;!-- jsoup HTML parser library @ https://jsoup.org/ --&gt;
+  &lt;groupId&gt;org.jsoup&lt;/groupId&gt;
+  &lt;artifactId&gt;jsoup&lt;/artifactId&gt;
+  &lt;version&gt;1.11.2&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre> 
+     <h2>Gradle</h2> 
+     <pre><code class="prettyprint">// jsoup HTML parser library @ https://jsoup.org/
+compile 'org.jsoup:jsoup:1.11.2'
+</code></pre> 
+     <h2>Building from source</h2> 
+     <pre><code class="prettyprint">git clone https://github.com/jhy/jsoup.git
+cd jsoup/
+mvn install
+</code></pre> 
+     <h2>Building from source</h2> 
+     <p>If you want to try out as yet unreleased changes, or would like to make your own, you will need to build a jar from source. It's easy. It's best to use <b>git</b> so that you can stay up to date, and be able to contribute your changes back:</p> 
+     <pre><code class="prettyprint">git clone https://github.com/jhy/jsoup.git
+cd jsoup
+mvn install
+</code></pre> 
+     <p>That will run the unit and integration tests, and after passing, install a snapshot jar into your local Maven repository.</p> 
+     <p>If you prefer to not use git you can download a zip:</p> 
+     <pre><code class="prettyprint">curl -Lo jsoup.zip https://github.com/jhy/jsoup/archive/master.zip
+unzip jsoup.zip
+cd jsoup-master
+mvn install
+</code></pre> 
+     <h2>Dependencies</h2> 
+     <p>jsoup is entirely self contained and has no dependencies.</p> 
+     <p>jsoup runs on Java 1.5 and up, Scala, Android, OSGi, Lambda, and Google App Engine.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

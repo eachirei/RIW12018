@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup release 1.8.1 (2014-Sep-27)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="Faster text and HTML serialization, and a range of improvements and bug-fixes."> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup release 1.8.1 (2014-Sep-27)"> 
+  <meta name="twitter:description" content="Faster text and HTML serialization, and a range of improvements and bug-fixes."> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup release 1.8.1 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup release 1.8.1</h1> 
+     <p><code>2014-Sep-27</code></p> 
+     <p><b>jsoup 1.8.1</b> brings great performance improvements to text and tree serialization, the choice of HTML or XML output, and a range of other improvements and bug-fixes.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <h2>Improvements</h2> 
+     <ul> 
+      <li>Introduced the ability to chose between HTML and XML output, and made HTML the default. This means <code>img</code> tags are output as <code>&lt;img&gt;</code>, not <code>&lt;img /&gt;</code>. XML is the default when using the XmlTreeBuilder. Control this with the <code><a href="/apidocs/org/jsoup/nodes/Document.OutputSettings.html#syntax--" title="Get the document's current output syntax.">Document.OutputSettings.syntax()</a></code> method.</li> 
+      <li>Improved the performance of <code><a href="/apidocs/org/jsoup/nodes/Element.html#text--" title="Gets the combined text of this element and all its children.">Element.text()</a></code> by 3.2x</li> 
+      <li>Improved the performance of <code><a href="/apidocs/org/jsoup/nodes/Element.html#html--" title="Retrieves the element's inner HTML.">Element.html()</a></code> by 1.7x</li> 
+      <li>Improved file read time by 2x, giving around a 10% speed improvement to file parses.</li> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/Element.html#cssSelector--" title="Get a CSS selector that will uniquely select this element.">Element.cssSelector()</a></code>, which returns a unique CSS selector/path for an element.</li> 
+      <li>Tightened the scope of what characters are escaped in attributes and textnodes, to align with the spec. Also, when using the extended escape entities map, only escape a character if the current output charset does not support it. This produces smaller, more legible HTML, with greater control over the output (by setting charset and escape mode).</li> 
+      <li>If pretty-print is disabled, don't trim outer whitespace in <code><a href="/apidocs/org/jsoup/nodes/Element.html#html--" title="Retrieves the element's inner HTML.">Element.html()</a></code></li> 
+      <li>In the HTML Cleaner, allow <code>span</code> tags in the basic whitelist, and <code>span</code> and <code>div</code> tags in the relaxed whitelist.</li> 
+      <li>Relaxed doctype validation, allowing doctypes to not specify a name.</li> 
+      <li>Added support for quoted attribute values in CSS Selectors</li> 
+     </ul> 
+     <h2>Bug Fixes</h2> 
+     <ul> 
+      <li>Fixed an issue where <code>&lt;svg&gt;&lt;img/&gt;&lt;/svg&gt;</code> was parsed as <code>&lt;svg&gt;&lt;image/&gt;&lt;/svg&gt;</code></li> 
+      <li>Fixed an issue where a UTF-8 BOM character was not detected if the HTTP response did not specify a charset, and the HTML body did, leading to the head contents incorrectly being parsed into the body. Changed the behavior so that when the UTF-8 BOM is detected, it will take precedence for determining the charset to decode with.</li> 
+      <li>Fixed an issue in parsing a base URI when loading a URL containing a http-equiv element.</li> 
+      <li>Fixed an issue for Java 1.5 / Android 2.2 compatibility, and verify it doesn't regress.</li> 
+      <li>Fixed an issue that would throw an NPE when trying to set invalid HTML into a <code>title</code> element.</li> 
+      <li>Fixed support for <code>nth-of-type</code> selectors with unknown tags.</li> 
+      <li>Added support for <code>application/*+xml</code> mimetypes.</li> 
+      <li>Fixed support for allowing script tags in cleaner whitelists.</li> 
+     </ul> 
+     <p>Many thanks to everyone who contributed patches, suggestions, and bug reports. Sorry for the hiatus! If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="http://jonathanhedley.com/contact">directly</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

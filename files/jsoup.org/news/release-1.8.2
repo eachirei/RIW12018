@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup release 1.8.2 (2015-Apr-13)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="jsoup 1.8.2 is 115x faster on Android, and brings many other improvements"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup release 1.8.2 (2015-Apr-13)"> 
+  <meta name="twitter:description" content="jsoup 1.8.2 is 115x faster on Android, and brings many other improvements"> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup release 1.8.2 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup release 1.8.2</h1> 
+     <p><code>2015-Apr-13</code></p> 
+     <p><b>jsoup 1.8.2</b> dramatically improves performance on Android, in parsing, HTML generation, and querying. Also added is file upload support, W3C DOM interoperability, and a range of other improvements and bug-fixes.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <h2>Improvements</h2> 
+     <ul> 
+      <li>Performance improvements for parsing HTML on Android, of 1.5x to 1.9x, with larger parses getting a bigger speed increase. For non-Android JREs, around 1.1x to 1.2x.</li> 
+      <li>Dramatic performance improvement in HTML serialization on Android (KitKat and later), of 115x. Improvement by working around a character set encoding speed regression in Android.</li> 
+      <li>Performance improvement for the class name selector on Android (.class) of 2.5x to 14x. Around 1.2x on non-Android JREs.</li> 
+      <li>File upload support. Added the ability to specify input streams for POST data, which will upload content in MIME multipart/form-data encoding.</li> 
+      <li>Add a meta-charset element to documents when setting the character set, so that the document's charset is unambiguous.</li> 
+      <li>Added ability to disable TLS (SSL) certificate validation. Helpful if you're hitting a host with a bad cert, or your JDK doesn't support SNI.</li> 
+      <li>Added ability to further tweak the canned Cleaner Whitelists by removing existing settings.</li> 
+      <li>Added option in Cleaner Whitelist to allow linking to in-page anchors (#)</li> 
+      <li>Use a lowercase doctype tag for HTML5 documents.</li> 
+      <li>Add support for 201 Created with redirect, and other status codes. Treats any HTTP status code 2xx or 3xx as an OK response, and follow redirects whenever there is a Location header.</li> 
+      <li>Added support for HTTP method verbs PUT, DELETE, and PATCH.</li> 
+      <li>Added support for overriding the default POST character of UTF-8 in <code><a href="/apidocs/org/jsoup/Connection.html" title="A Connection provides a convenient interface to fetch content from the web, and parse them into Documents.">Connection</a></code>.</li> 
+      <li>W3C DOM support: added ability to convert from a jsoup document to a W3C document, with the <code><a href="/apidocs/org/jsoup/helper/W3CDom.html" title="Helper class to transform a Document to a org.w3c.dom.Document, for integration with toolsets that use the W3C DOM.">W3CDom</a></code> helper class.</li> 
+      <li>In the <code><a href="/apidocs/org/jsoup/examples/HtmlToPlainText.html" title="HTML to plain-text.">HtmlToPlainText</a></code> example program, added the ability to filter using a CSS selector. Also clarified the usage documentation.</li> 
+      <li>Improved the equals() and hashcode() methods in <code><a href="/apidocs/org/jsoup/nodes/Node.html" title="The base, abstract Node model.">Node</a></code>, to consider all their child content, for DOM tree comparisons.</li> 
+      <li>Improved performance in Selector when searching multiple roots.</li> 
+     </ul> 
+     <h2>Bug Fixes</h2> 
+     <ul> 
+      <li>Fixed validation of cookie names in HttpConnection cookie methods.</li> 
+      <li>Fixed an issue where <code>option</code> tags would be missed when preparing a form for submission if missing a selected attribute.</li> 
+      <li>Fixed an issue where submitting a form would incorrectly include radio and checkbox values without the checked attribute.</li> 
+      <li>Fixed an issue where Element.classNames() would return a set containing an empty class; and may have extraneous whitespace.</li> 
+      <li>Fixed an issue where attributes selected by value were not correctly space normalized.</li> 
+      <li>In head+noscript elements, treat content as character data, instead of jumping out of head parsing.</li> 
+      <li>Fixed performance issue when parsing HTML with elements with many children that need re-parenting.</li> 
+      <li>Fixed an issue where a server returning an unsupport character set response would cause a runtime UnsupportedCharsetException, instead of falling back to the default UTF-8 charset.</li> 
+      <li>Fixed an issue where Jsoup.Connection would throw an IO Exception when reading a page with zero content-length.</li> 
+     </ul> 
+     <p>Many thanks to everyone who contributed patches, suggestions, and bug reports. If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="http://jhy.io/">directly</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

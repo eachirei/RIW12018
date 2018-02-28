@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup version 1.6.0 released (2011-Jun-13)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="jsoup 1.6.0 release notes"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup version 1.6.0 released (2011-Jun-13)"> 
+  <meta name="twitter:description" content="jsoup 1.6.0 release notes"> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> Brand new HTML5 parser: jsoup 1.6.0 released 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>Brand new HTML5 parser: jsoup 1.6.0 released</h1> 
+     <p><code>2011-Jun-13</code> I am very happy to announce that <b>jsoup 1.6.0</b> has been released and is now available for <a href="/download"><b>download</b></a>.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <h2>New HTML5 parser</h2> 
+     <p>This release of jsoup includes a completely re-implemented parser, based on the <a href="http://whatwg.org/html">WHATWG HTML5 specification</a>. jsoup now parses HTML exactly like modern browsers such as Chrome, Firefox, and Safari parse HTML. This helps users scrape data more readily, and improves HTML tidying.</p> 
+     <p>As this is such a large change since the previous <code>1.5.2</code> release, jsoup is being released as version <code>1.6.0</code>. The <code>.0</code> denotes a beta release: if you run into problems parsing documents, please <a href="/bugs">file a bug</a>, particularly if parsing under <code>1.5.2</code> worked OK.</p> 
+     <h2>Other improvements and bug fixes</h2> 
+     <ul> 
+      <li>When parsing files from disk, files are loaded via memory mapping, to increase parse speed.</li> 
+     </ul> 
+     <ul> 
+      <li>Reduced memory overhead and lowered garbage collector pressure with <code><a href="/apidocs/org/jsoup/nodes/Attribute.html" title="A single key + value attribute.">Attribute</a></code>, <code><a href="/apidocs/org/jsoup/nodes/Node.html" title="The base, abstract Node model.">Node</a></code> and <code><a href="/apidocs/org/jsoup/nodes/Element.html" title="A HTML element consists of a tag name, attributes, and child nodes (including text nodes and other elements).">Element</a></code> model optimisations.</li> 
+     </ul> 
+     <ul> 
+      <li>Improved <code>abs:</code> absolute URL handling in <code><a href="/apidocs/org/jsoup/select/Elements.html#attr(java.lang.String)">Elements.attr(abs:href)</a></code> and <code><a href="/apidocs/org/jsoup/nodes/Node.html#hasAttr(java.lang.String)">Node.hasAttr(abs:href)</a></code>.</li> 
+     </ul> 
+     <ul> 
+      <li>Fixed cookie handling issue in <code><a href="[/apidocs/org/jsoup/Jsoup.html#connect(java.lang.String)">jsoup.Connect</a></code> where empty cookies would cause a validation exception.</li> 
+     </ul> 
+     <ul> 
+      <li>Added <code><a href="[/apidocs/org/jsoup/Jsoup.html#connect(java.lang.String)">Jsoup.connect</a> jsoup.Connect]</code> configuration options to allow HTTP errors to be ignored, and the content-type to be ignored.</li> 
+     </ul> 
+     <ul> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/Node.html#before-org.jsoup.nodes.Node-" title="Insert the specified node into the DOM before this node (i.e.">Node.before(Node)</a></code> and <code><a href="/apidocs/org/jsoup/nodes/Node.html#after-org.jsoup.nodes.Node-" title="Insert the specified node into the DOM after this node (i.e.">Node.after(Node)</a></code>, to allow existing nodes to be moved, or new nodes to be inserted, into precise DOM positions.</li> 
+     </ul> 
+     <ul> 
+      <li>Added <code><a href="/apidocs/org/jsoup/nodes/Node.html#unwrap--" title="Removes this node from the DOM, and moves its children up into the node's parent.">Node.unwrap()</a></code> and <code><a href="/apidocs/org/jsoup/select/Elements.html#unwrap--" title="Removes the matched elements from the DOM, and moves their children up into their parents.">Elements.unwrap()</a></code>, to remove a node but keep its contents. Useful for e.g. removing unwanted formatting tags.</li> 
+     </ul> 
+     <ul> 
+      <li>Now handles unclosed <code>&lt;title&gt;</code> tags in document by breaking out of the title at the next start tag, instead of eating up to the end of the document.</li> 
+     </ul> 
+     <ul> 
+      <li>Added <code>OSGi</code> bundle support to the jsoup package jar. If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="http://jonathanhedley.com/contact">directly</a>.</li> 
+     </ul> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>

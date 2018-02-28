@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+ <head> 
+  <title>jsoup release 1.8.3 (2015-Aug-02)</title> 
+  <meta name="keywords" content=""> 
+  <meta name="description" content="jsoup 1.8.3 brings bug fixes and performance improvements"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1"> 
+  <link type="text/css" rel="stylesheet" href="/rez/style.css"> 
+  <meta name="twitter:card" content="summary"> 
+  <meta name="twitter:site" content="@jhy"> 
+  <meta name="twitter:title" content="jsoup release 1.8.3 (2015-Aug-02)"> 
+  <meta name="twitter:description" content="jsoup 1.8.3 brings bug fixes and performance improvements"> 
+  <meta name="twitter:image" content="https://jsoup.org/rez/jsoup%20logo%20twitter.png"> 
+  <script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-89734-10', 'auto');
+  ga('send', 'pageview');
+
+</script> 
+ </head> 
+ <body class="n1-news"> 
+  <div class="wrap"> 
+   <div class="header"> 
+    <div class="nav-sections"> 
+     <ul> 
+      <li class="n1-home"><h4><a href="/">jsoup</a></h4></li> 
+      <li class="n1-news"><a href="/news/">News</a></li> 
+      <li class="n1-bugs"><a href="/bugs">Bugs</a></li> 
+      <li class="n1-discussion"><a href="/discussion">Discussion</a></li> 
+      <li class="n1-download"><a href="/download">Download</a></li> 
+      <li class="n1-api"><a href="/apidocs/">API Reference</a></li> 
+      <li class="n1-cookbook"><a href="/cookbook/">Cookbook</a></li> 
+      <li class="n1-try"><a href="//try.jsoup.org/">Try jsoup</a></li> 
+     </ul> 
+    </div> 
+   </div> 
+   <div class="breadcrumb" itemscope itemtype="http://schema.org/BreadcrumbList"> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">jsoup</span></a> <span class="seperator">&raquo;</span></span> 
+    <span itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem"><a href="/news/" itemscope itemtype="http://schema.org/Thing" itemprop="item"><span itemprop="name">News</span></a> </span> 
+    <span class="seperator">&raquo;</span> jsoup release 1.8.3 
+   </div> 
+   <div class="content"> 
+    <div class="col1"> 
+     <h1>jsoup release 1.8.3</h1> 
+     <p><code>2015-Aug-02</code></p> 
+     <p><b>jsoup 1.8.3</b> includes performance improvements when parsing large HTML files, automatically switches to the XML parser when fetching XML documents, and has some important bug fixes.</p> 
+     <p><b>jsoup</b> is a Java library for working with real-world HTML. It provides a very convenient API for extracting and manipulating data, using the best of DOM, CSS, and jquery-like methods.</p> 
+     <h2>Improvements</h2> 
+     <ul> 
+      <li>Performance improvement on parsing larger HTML pages. On Android KitKat, around 1.7x times faster. On Android Lollipop, ~ 1.3x faster. Improvements largely from re-ordering the <code><a href="/apidocs/org/jsoup/parser/HtmlTreeBuilder.html" title="HTML Tree Builder; creates a DOM from Tokens.">HtmlTreeBuilder</a></code> methods based on analysis of various websites; also from further memory reduction for nodes with no children, and other tweaks.</li> 
+      <li>When fetching XML URLs, automatically switch to the XML parser instead of the HTML parser.</li> 
+      <li>Improved support for boolean attributes in HTML5.</li> 
+      <li>When serialising XML, ensure that '&lt;' characters in attributes are escaped, per spec. Not required in HTML.</li> 
+     </ul> 
+     <h2>Bug Fixes</h2> 
+     <ul> 
+      <li>Fixed an issue in <code><a href="/apidocs/org/jsoup/nodes/Element.html#elementSiblingIndex--" title="Get the list index of this element in its element sibling list.">Element.elementSiblingIndex()</a></code> (and related methods) where sibling elements with the same content would incorrectly have the same sibling index.</li> 
+      <li>Fixed an issue where unexpected elements in a badly nested table could be moved to the wrong location in the document.</li> 
+      <li>Fixed an issue where a table nested within a TH cell would parse to an incorrect tree.</li> 
+      <li>When serializing a document using the XHTML encoding entities, if the character set did not support <code>&amp;nbsp;</code> chars (such as <code>Shift_JIS</code>), the character would be skipped. For visibility, will now always output <code>&amp;xa0;</code> (the hex code for non-breaking-space); when using XHTML encoding entities (as <code>&amp;nbsp;</code> is not defined), regardless of the output character set.</li> 
+      <li>Fixed an issue when resolving URLs, where if the absolute URL had no path, the relative URL was not normalized correctly.</li> 
+      <li>Fixed an issue where connections that were redirected to a relative URL did not have the same normalization rules as a URL read from Nodes.absUrl(String).</li> 
+     </ul> 
+     <p>Many thanks to everyone who contributed patches, suggestions, and bug reports. If you have any suggestions for the next release, I would love to hear them; please get in touch via the <a href="/discussion">mailing list</a> or to me <a href="http://jhy.io/">directly</a>.</p> 
+    </div>
+    <!-- /col1 --> 
+    <div class="col2"> 
+    </div>
+    <!-- /col2 --> 
+   </div>
+   <!-- /content--> 
+   <div class="footer"> 
+    <b>jsoup HTML parser</b> &copy; 2009 - 2017 
+    <a href="//jhy.io/" rel="author"><b>Jonathan Hedley</b></a> 
+   </div> 
+  </div>
+  <!-- /wrap --> 
+  <script src="/rez/prettify.js"></script>
+  <script>prettyPrint();</script> 
+ </body>
+</html>
