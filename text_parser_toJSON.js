@@ -176,6 +176,8 @@ const stopWords = ['a',
     'yourselves'];
 
 const stopWordsMap = {};
+// to add min length for word
+// need to do reverse index
 stopWords.forEach(sW => stopWordsMap[sW] = true);
 
 const exceptionsMap = {
@@ -188,6 +190,13 @@ function isAlphaNum(character) {
         (character >= 'a' && character <= 'z') ||
         character === '\'';
 }
+
+let idxCount = 0
+    , processedFileCount = 0;
+
+const MAX_FILES_INDEX = 5;
+
+const idx_dir = 'idx_dir';
 
 function processFile(filePath) {
     return new Promise((resolve, reject) => {
@@ -219,13 +228,14 @@ function processFile(filePath) {
                 if (currentWord === '') {
                     return;
                 }
-                if (stopWordsMap[currentWord]) {//skip stopword
-                    return;
-                }
                 if (exceptionsMap[currentWord]) {
                     addWordToMap(currentWord);
                 } else {
-                    addWordToMap(processCommonWord(currentWord));
+                    if (stopWordsMap[currentWord]) {//skip stopword
+                        return;
+                    } else {
+                        addWordToMap(processCommonWord(currentWord))
+                    }
                 }
                 currentWord = '';
                 return;
@@ -235,7 +245,7 @@ function processFile(filePath) {
         
         readStream.on('error', (err) => {
             console.error(err);
-            resolve();
+            resolve(freqDict);//resolve with what was done till now
         });
         
         readStream.on('end', () => {
@@ -244,29 +254,82 @@ function processFile(filePath) {
         
         readStream.on('close', () => {
             console.log('file closed');
-            const fileName = path.basename(filePath, '.txt');
-            const jsonFilePath = path.join(path.dirname(filePath), `${fileName}.json`);
-            try {
-                fs.truncateSync(jsonFilePath);
-            } catch (err) {
-            }
-            fs.writeFile(jsonFilePath, JSON.stringify(freqDict), (errorWriting) => {
-                errorWriting && console.error(errorWriting);
-                resolve();
-            });
+            // const fileName = path.basename(filePath, '.txt');
+            // const jsonFilePath = path.join(path.dirname(filePath), `${fileName}.json`);
+            // try {
+            //     fs.truncateSync(jsonFilePath);
+            // } catch (err) {
+            // }
+            // fs.writeFile(jsonFilePath, JSON.stringify(freqDict), (errorWriting) => {
+            //     errorWriting && console.error(errorWriting);
+            resolve(freqDict);
+            // });
         });
         
     });
 }
 
 (async function wtv() {
+    const refPath = `idx_ref.txt`;
+    try {
+        fs.truncateSync(refPath);
+    } catch (err) {
+    }
+    console.log('all done');
     const filePaths = fs.readFileSync('./files/fileList', {encoding: 'UTF8'});
-    await Promise.all(filePaths.split('\n').filter(fP => fP).map(fP => {
+    let referenceDict = {};
+    let workingBatch = {};
+    await Promise.all(filePaths.split('\n').filter(fP => fP).map(async (fP) => {
         const fileName = path.basename(fP, '.html');
         const txtFilePath = path.join(path.dirname(fP), `${fileName}.txt`);
-        return processFile(txtFilePath);
+        const resultProcessing = await processFile(txtFilePath);
+        workingBatch[fP] = resultProcessing;
+        processedFileCount++;
+        if (processedFileCount === MAX_FILES_INDEX) {
+            const idxPath = path.join(idx_dir, `index${idxCount}.json`);
+            try {
+                fs.truncateSync(idxPath);
+            } catch (err) {
+            }
+            try {
+                fs.writeFileSync(idxPath, JSON.stringify(workingBatch));
+            } catch (errWriting) {
+                console.error(errWriting);
+            }
+            processedFileCount = 0;
+            idxCount++;
+            for (const htmlFP in workingBatch) {
+                try {
+                    fs.appendFileSync(refPath, `${htmlFP} ${path.join(__dirname, idxPath)}\n`);//weird bug when trying to write full reference dict
+                } catch (errWriting) {
+                    console.error(errWriting);
+                }
+            }
+            workingBatch = {};
+        }
     }));
-    console.log('all done');
+    if (processedFileCount !== 0) {
+        const idxPath = path.join(idx_dir, `index${idxCount}.json`);
+        try {
+            fs.truncateSync(idxPath);
+        } catch (err) {
+        }
+        try {
+            fs.writeFileSync(idxPath, JSON.stringify(workingBatch));
+        } catch (errWriting) {
+            console.error(errWriting);
+        }
+        processedFileCount = 0;
+        idxCount++;
+        for (const htmlFP in workingBatch) {
+            try {
+                fs.appendFileSync(refPath, `${htmlFP} ${path.join(__dirname, idxPath)}\n`);
+            } catch (errWriting) {
+                console.error(errWriting);
+            }
+        }
+        workingBatch = {};
+    }
 })();
 
 
