@@ -208,11 +208,30 @@ function isAlphaNum(character) {
         character === '\'';
 }
 
+let countReceived = 0, DONEReceived = false, countResolved = 0;
+
+function myResolve(msg, realResolve) {
+    realResolve(msg);
+    countResolved++;
+    console.log(`${countResolved}/${countReceived}`);
+    if (DONEReceived === true && countReceived === countResolved) {
+        setTimeout(() => {
+            ipc.sendEvent('DONE');
+        }, 0);
+        console.timeEnd('ALL_DONE');
+    }
+}
+
+console.time('ALL_DONE');
+
 function processFile(filePath) {
     return new Promise((resolve, reject) => {
         console.log(filePath);
+        countReceived++;
         if (filePath === 'DONE') {
-            return resolve('DONE');
+            DONEReceived = true;
+            myResolve(null, resolve);//do nothing
+            return;
         }
         const readStream = fs.createReadStream(filePath, {
             flags: 'r',
@@ -264,10 +283,10 @@ function processFile(filePath) {
         
         readStream.on('error', (err) => {
             console.error(err);
-            resolve(JSON.stringify({
+            myResolve(JSON.stringify({
                 filePath: path.join(path.dirname(filePath), path.basename(filePath, '.txt')),
                 fileJSON: freqDict
-            }));//resolve with what was done till now
+            }), resolve);//resolve with what was done till now
             freqDict = {};
         });
         
@@ -277,10 +296,10 @@ function processFile(filePath) {
         
         readStream.on('close', () => {
             console.log(`closed ${filePath}`);
-            resolve(JSON.stringify({
+            myResolve(JSON.stringify({
                 filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
                 fileJSON: freqDict
-            }));
+            }), resolve);
             freqDict = {};
         });
     });

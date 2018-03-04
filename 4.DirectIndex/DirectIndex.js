@@ -50,7 +50,7 @@ function wtv(data) {
         filePath = parsingResult.filePath;
         fileJSON = parsingResult.fileJSON;
     } catch (err) {
-        if (data === "DONE") { // to do this
+        if (data === 'DONE') { // to do this
             return flushIndexes();
         }
         return console.error(err);
