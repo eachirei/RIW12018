@@ -211,6 +211,9 @@ function isAlphaNum(character) {
 function processFile(filePath) {
     return new Promise((resolve, reject) => {
         console.log(filePath);
+        if (filePath === 'DONE') {
+            return resolve('DONE');
+        }
         const readStream = fs.createReadStream(filePath, {
             flags: 'r',
             // encoding: 'utf8',//this breaks if different character encoding is present

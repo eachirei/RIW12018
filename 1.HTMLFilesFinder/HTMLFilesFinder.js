@@ -27,4 +27,5 @@ const dirList = [initialPath];
             }
         });
     }
+    ipc.sendEvent("DONE");
 })();

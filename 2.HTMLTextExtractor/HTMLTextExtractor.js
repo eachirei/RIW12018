@@ -14,11 +14,17 @@ function extractTextFromHtmlFile(filePath) {
     if (!filePath) {
         return;
     }
+    if (filePath === 'DONE') {
+        ipc.sendEvent('DONE');
+        return;
+    }
+    
     const htmlContent = fs.readFileSync(filePath, {encoding: 'UTF8'});
     
     const $ = cheerio.load(htmlContent);
     
     $('script').remove();
+    $('noscript').remove();
     $('style').remove();
     
     const fileName = path.basename(filePath, '.html');

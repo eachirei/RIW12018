@@ -15,7 +15,7 @@ try {
 }
 
 let workingBatch = {};
-const MAX_FILES_INDEX = 10;
+const MAX_FILES_INDEX = 30;
 const idx_dir = 'idx_dir';
 let idxCount = 0;
 
