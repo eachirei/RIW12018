@@ -1,7 +1,0 @@
-User-agent: *
-
-Disallow: /plans/*
-Disallow: /passwords/*
-Disallow: /launch-codes/*
-
-Sitemap: http://jsoup.org/sitemap.xml

@@ -1,1 +1,0 @@
-org.jsoup.safety Classes Cleaner Whitelistorg.jsoup.safetyorg.jsoup.safetyClasses Cleaner WhitelistClassesCleaner WhitelistCleanerCleanerWhitelistWhitelist
