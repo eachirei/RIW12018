@@ -4,3 +4,7 @@ node_modules/
 idx_dir/
 idx_ref\.txt
 files/
+/5.ReverseBlocks/blocks_dir/
+/6.FullReverseIndex/rev_dir/
+/6.FullReverseIndex/rev_ref.txt
+/6.FullReverseIndex/rev_idx.json

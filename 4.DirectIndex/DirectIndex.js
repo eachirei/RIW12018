@@ -4,6 +4,7 @@ const fs = require('fs')
 const ipc = new (require('../IpcWrapper'))({
     from: 'TextToJSON',
     current: 'DirectIndex',
+    to: 'ReverseBLocks',
     messageHandler: wtv
 });
 
@@ -21,7 +22,7 @@ let idxCount = 0;
 
 function flushIndexes() {
     console.log('flushing...');
-    const idxPath = path.join(idx_dir, `index${idxCount}.json`);
+    const idxPath = path.join(__dirname, idx_dir, `index${idxCount}.json`);
     try {
         fs.truncateSync(idxPath);
     } catch (err) {
@@ -41,6 +42,7 @@ function flushIndexes() {
         }
     }
     workingBatch = {};
+    return ipc.sendEvent(idxPath);
 }
 
 function wtv(data) {
@@ -51,7 +53,9 @@ function wtv(data) {
         fileJSON = parsingResult.fileJSON;
     } catch (err) {
         if (data === 'DONE') { // to do this
-            return flushIndexes();
+            flushIndexes();
+            ipc.sendEvent('DONE');
+            return;
         }
         return console.error(err);
     }
