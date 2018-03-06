@@ -224,6 +224,33 @@ function myResolve(msg, realResolve) {
 
 console.time('ALL_DONE');
 
+function addWordToMap(freqDict, word) {
+    if (!freqDict[word]) {
+        freqDict[word] = 0;
+    }
+    freqDict[word]++
+}
+
+function processCommonWord(word) {
+    return word;
+}
+
+function processWord(freqDict, currentWord) {
+    if (currentWord === '') {
+        return;
+    }
+    if (currentWord.length < 3) {
+        return;
+    }
+    if (exceptionsMap[currentWord]) {
+        return addWordToMap(freqDict, currentWord);
+    }
+    if (stopWordsMap[currentWord]) {//skip stopword
+        return;
+    }
+    return addWordToMap(processCommonWord(currentWord))
+}
+
 function processFile(filePath) {
     return new Promise((resolve, reject) => {
         console.log(filePath);
@@ -242,40 +269,13 @@ function processFile(filePath) {
         let currentWord = '';
         let freqDict = {};
         
-        function addWordToMap(word) {
-            if (!freqDict[word]) {
-                freqDict[word] = 0;
-            }
-            freqDict[word]++
-        }
-        
-        function processCommonWord(word) {
-            return word;
-        }
         
         readStream.on('data', (dataBuf) => {
             dataBuf.toString().split('').forEach((currentChar) => {
                 // console.log(data);
                 if (!isAlphaNum(currentChar)) {
-                    if (currentWord === '') {
-                        return;
-                    }
-                    if (currentWord.length < 3) {
-                        currentWord = '';
-                        return;
-                    }
-                    if (exceptionsMap[currentWord]) {
-                        addWordToMap(currentWord);
-                    } else {
-                        if (stopWordsMap[currentWord]) {//skip stopword
-                            currentWord = '';
-                            return;
-                        } else {
-                            addWordToMap(processCommonWord(currentWord))
-                        }
-                    }
-                    currentWord = '';
-                    return;
+                    processWord(freqDict, currentWord);
+                    return currentWord = '';
                 }
                 currentWord += currentChar;
             });
@@ -283,6 +283,7 @@ function processFile(filePath) {
         
         readStream.on('error', (err) => {
             console.error(err);
+            processWord(freqDict, currentWord);
             myResolve(JSON.stringify({
                 filePath: path.join(path.dirname(filePath), path.basename(filePath, '.txt')),
                 fileJSON: freqDict
@@ -296,6 +297,7 @@ function processFile(filePath) {
         
         readStream.on('close', () => {
             console.log(`closed ${filePath}`);
+            processWord(freqDict, currentWord);
             myResolve(JSON.stringify({
                 filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
                 fileJSON: freqDict
