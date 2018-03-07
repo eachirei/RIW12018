@@ -248,7 +248,7 @@ function processWord(freqDict, currentWord) {
     if (stopWordsMap[currentWord]) {//skip stopword
         return;
     }
-    return addWordToMap(processCommonWord(currentWord))
+    return addWordToMap(freqDict, processCommonWord(currentWord))
 }
 
 function processFile(filePath) {
@@ -271,6 +271,7 @@ function processFile(filePath) {
         
         
         readStream.on('data', (dataBuf) => {
+            console.log(`chunk for ${filePath}`);
             dataBuf.toString().split('').forEach((currentChar) => {
                 // console.log(data);
                 if (!isAlphaNum(currentChar)) {
