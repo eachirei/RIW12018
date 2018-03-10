@@ -25,6 +25,7 @@ const opMaps = {
             for (let i = 0; i < b.length; i++) {
                 if (a.indexOf(b[i]) === -1) {
                     b.splice(i, 1);
+                    i--;
                 }
             }
             return b;
@@ -32,6 +33,7 @@ const opMaps = {
         for (let i = 0; i < a.length; i++) {
             if (b.indexOf(a[i]) === -1) {
                 a.splice(i, 1);
+                i--;
             }
         }
         return a;
@@ -43,6 +45,20 @@ const opMaps = {
         if (typeof b === 'string') {
             b = getRevFilesForWord(b);
         }
+        if (b.length < a.length) {
+            for (let i = 0; i < b.length; i++) {
+                if (a.indexOf(b[i]) === -1) {
+                    a.push(b[i]);
+                }
+            }
+            return a;
+        }
+        for (let i = 0; i < a.length; i++) {
+            if (b.indexOf(a[i]) === -1) {
+                b.push(a[i]);
+            }
+        }
+        return b;
     },
     'NOT': (a, b) => {
         if (typeof a === 'string') {
@@ -51,6 +67,13 @@ const opMaps = {
         if (typeof b === 'string') {
             b = getRevFilesForWord(b);
         }
+        for (let i = 0; i < b.length; i++) {
+            let aIdx = a.indexOf(b[i]);
+            if (aIdx !== -1) {
+                a.splice(aIdx, 1);
+            }
+        }
+        return a;
     }
 };
 
