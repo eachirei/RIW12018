@@ -1,5 +1,6 @@
 const fs = require('fs')
-    , path = require('path');
+    , path = require('path')
+    , stem = require('stem-porter');
 
 const ipc = new (require('../IpcWrapper'))({
     from: 'HTMLTextExtractor',
@@ -198,7 +199,8 @@ const exceptionsMap = {
     'HTML5': true,
     'wikipedia': true,
     'Wikipedia': true,
-    'MIT': true
+    'MIT': true,
+    'appendElement': true
 };
 
 function isAlphaNum(character) {
@@ -231,7 +233,14 @@ function addWordToMap(freqDict, word) {
     freqDict[word]++
 }
 
+/**
+ *
+ * @param word {string}
+ * @return {string}
+ */
 function processCommonWord(word) {
+    word = word.toLowerCase();
+    word = stem(word);
     return word;
 }
 
