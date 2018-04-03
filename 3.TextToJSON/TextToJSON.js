@@ -2,12 +2,7 @@ const fs = require('fs')
     , path = require('path')
     , stem = require('stem-porter');
 
-const ipc = new (require('../IpcWrapper'))({
-    from: 'HTMLTextExtractor',
-    current: 'TextToJSON',
-    to: 'DirectIndex',
-    messageHandler: processFile
-});
+const RabbitWrapper = require('../RabbitWrapper');
 
 const stopWordsMap = {
     'a': true,
@@ -210,22 +205,6 @@ function isAlphaNum(character) {
         character === '\'';
 }
 
-let countReceived = 0, DONEReceived = false, countResolved = 0;
-
-function myResolve(msg, realResolve) {
-    realResolve(msg);
-    countResolved++;
-    console.log(`${countResolved}/${countReceived}`);
-    if (DONEReceived === true && countReceived === countResolved) {
-        setTimeout(() => {
-            ipc.sendEvent('DONE');
-        }, 0);
-        console.timeEnd('ALL_DONE');
-    }
-}
-
-console.time('ALL_DONE');
-
 function addWordToMap(freqDict, word) {
     if (!freqDict[word]) {
         freqDict[word] = 0;
@@ -260,15 +239,20 @@ function processWord(freqDict, currentWord) {
     return addWordToMap(freqDict, processCommonWord(currentWord))
 }
 
-function processFile(filePath) {
-    return new Promise((resolve, reject) => {
-        console.log(filePath);
-        countReceived++;
-        if (filePath === 'DONE') {
-            DONEReceived = true;
-            myResolve(null, resolve);//do nothing
-            return;
+(async function makeMeAsync() {
+    const commChannel = await RabbitWrapper({
+        from: 'TextToJSON',
+        to: 'DirectIndex',
+        messageHandler: processFile
+    });
+    
+    function processFile(message, msgCb) {
+        if (!message || !message.data) {
+            return msgCb(null);
         }
+        const filePath = message.data;
+        console.log(filePath);
+        
         const readStream = fs.createReadStream(filePath, {
             flags: 'r',
             // encoding: 'utf8',//this breaks if different character encoding is present
@@ -277,7 +261,6 @@ function processFile(filePath) {
         
         let currentWord = '';
         let freqDict = {};
-        
         
         readStream.on('data', (dataBuf) => {
             console.log(`chunk for ${filePath}`);
@@ -294,26 +277,34 @@ function processFile(filePath) {
         readStream.on('error', (err) => {
             console.error(err);
             processWord(freqDict, currentWord);
-            myResolve(JSON.stringify({
-                filePath: path.join(path.dirname(filePath), path.basename(filePath, '.txt')),
+            commChannel.sendMessage({
+                filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
                 fileJSON: freqDict
-            }), resolve);//resolve with what was done till now
+            }, (err) => {
+                if (err) {
+                    return msgCb(err, true);
+                }
+                return msgCb();
+            });//resolve with what was done till now
             freqDict = {};
         });
-        
-        // readStream.on('end', () => {
-        //     console.log('no more data');
-        // });
         
         readStream.on('close', () => {
             console.log(`closed ${filePath}`);
             processWord(freqDict, currentWord);
-            myResolve(JSON.stringify({
+    
+            commChannel.sendMessage({
                 filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
                 fileJSON: freqDict
-            }), resolve);
+            }, (err) => {
+                if (err) {
+                    return msgCb(err, true);
+                }
+                return msgCb();
+            });
             freqDict = {};
         });
-    });
-    
-}
+        
+    }
+})();
+
