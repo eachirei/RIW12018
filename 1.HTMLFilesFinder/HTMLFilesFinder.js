@@ -1,17 +1,20 @@
 const fs = require('fs')
     , path = require('path')
-    , {promisify} = require('util');
-
-const ipc = new (require('../IpcWrapper'))({
-    current: 'HTMLFilesFinder',
-    to: 'HTMLTextExtractor'
-});
+    , {promisify} = require('util')
+    , RabbitWrapper = require('../RabbitWrapper');
 
 const initialPath = '/home/eachirei/Desktop/facultate/RIW/L1/files/jsoup.org';
 
 const dirList = [initialPath];
 
 (async function makeMeAsync() {
+    const commChannel = await RabbitWrapper({
+        to: 'HTMLTextExtractor'
+    });
+    const commChannelBarrier = await RabbitWrapper({
+        to: 'BARRIER'
+    });
+    const filesMap = {};
     while (dirList.length) {
         const currentDir = dirList.pop();
         const fileList = await (promisify(fs.readdir)(currentDir));
@@ -22,10 +25,13 @@ const dirList = [initialPath];
                 return dirList.push(fPath);
             }
             if (path.extname(fPath) === '.html') {
-                ipc.sendEvent(fPath);
+                filesMap[fPath] = true;
+                commChannel.sendMessage({
+                    data: fPath
+                });
                 console.log(fPath);
             }
         });
     }
-    ipc.sendEvent("DONE");
+    commChannelBarrier.sendMessage(filesMap);
 })();

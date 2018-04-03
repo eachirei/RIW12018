@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+	  "amqp-wrapper": "^5.5.2",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.2",
 	  "node-ipc": "^9.1.1",
