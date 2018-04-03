@@ -1,7 +1,8 @@
 const fs = require('fs')
     , path = require('path')
-    , {promisify} = require('util')
-    , RabbitWrapper = require('../RabbitWrapper');
+    , {promisify} = require('util');
+
+const RabbitWrapper = require('../RabbitWrapper');
 
 const initialPath = '/home/eachirei/Desktop/facultate/RIW/L1/files/jsoup.org';
 

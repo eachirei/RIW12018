@@ -13,19 +13,6 @@ const rabbitExchange = 'RIW';
 async function RabbitWrapper(params) {
     let amqpC = null, amqpP = null;
     
-    if (params.from) {
-        amqpC = new AmqpWrapper({
-            url: rabbitURL,
-            exchange: rabbitExchange,
-            queue: {
-                name: params.from
-            }
-        });
-        
-        await amqpC.connect();
-        amqpC.consume(params.messageHandler);
-    }
-    
     if (params.to) {
         amqpP = new AmqpWrapper({
             url: rabbitURL,
@@ -39,8 +26,28 @@ async function RabbitWrapper(params) {
         await amqpP.connect();
     }
     
+    if (params.from) {
+        amqpC = new AmqpWrapper({
+            url: rabbitURL,
+            exchange: rabbitExchange,
+            queue: {
+                name: params.from
+            },
+            prefetchCount: 1
+        });
+        
+        await amqpC.connect();
+        setTimeout(() => amqpC.consume(params.messageHandler), 0);
+    }
+    
+    const defaultSendCb = (err) => {
+        if (err) {
+            console.error(err);
+        }
+    };
+    
     return {
-        sendMessage: (msg) => {
+        sendMessage: (msg, cb) => {
             if (!params.to || !amqpP) {
                 return;
             }
@@ -48,12 +55,12 @@ async function RabbitWrapper(params) {
             if (!msg) {
                 return;//in case the module doesn't return, but only sends events
             }
-            
-            amqpP.publish(params.to, JSON.stringify(msg), {persistent: true}, (err) => {
-                if (err) {
-                    console.error(err);
-                }
-            });
+        
+            if (!cb) {
+                cb = defaultSendCb;
+            }
+        
+            amqpP.publish(params.to, JSON.stringify(msg), {persistent: true}, cb);
             
         }
     };
