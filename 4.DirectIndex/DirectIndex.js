@@ -6,8 +6,8 @@ const RabbitWrapper = require('../RabbitWrapper');
 (async function makeMeAsync() {
     
     const commChannelBarrier = await RabbitWrapper({
-        from: 'BARRIER',
-        to: 'BARRIER2',
+        from: 'BarrierDirectIndex',
+        to: 'BarrierReverseBlocks',
         messageHandler: barrierInit
     });
     

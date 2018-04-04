@@ -13,7 +13,7 @@ const dirList = [initialPath];
         to: 'HTMLTextExtractor'
     });
     const commChannelBarrier = await RabbitWrapper({
-        to: 'BARRIER'
+        to: 'BarrierDirectIndex'
     });
     const filesMap = {};
     while (dirList.length) {
