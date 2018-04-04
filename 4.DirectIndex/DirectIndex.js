@@ -29,6 +29,7 @@ const RabbitWrapper = require('../RabbitWrapper');
         }
         
         let workingBatch = {};
+        let idxPathDict = {};
         const MAX_FILES_INDEX = 30;
         const idx_dir = 'idx_dir';
         let idxCount = 0;
@@ -57,6 +58,7 @@ const RabbitWrapper = require('../RabbitWrapper');
                     console.error(errWriting);
                 }
             }
+            idxPathDict[idxPath] = true;
             workingBatch = {};
             return commChannel.sendMessage({data: idxPath}, (err) => {
                 if (err) {
@@ -80,7 +82,8 @@ const RabbitWrapper = require('../RabbitWrapper');
             }
             if (currentFilesCount === filesCount) { // to do this
                 flushIndexes();
-                return commChannelBarrier.sendMessage(fileMap, (err) => {
+                return commChannelBarrier.sendMessage(idxPathDict, (err) => {
+                    idxPathDict = {};
                     if (err) {
                         return msgCbBig(err, true);
                     }
