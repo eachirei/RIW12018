@@ -12,11 +12,7 @@
 const fs = require('fs')
     , path = require('path');
 
-const ipc = new (require('../IpcWrapper'))({
-    from: 'ReverseBLocks',
-    current: 'FullReverseIndex',
-    messageHandler: fullReverseIndex
-});
+const RabbitWrapper = require('../RabbitWrapper');
 
 function BlockWrapper(blockPath) {
     const fd = fs.openSync(blockPath, 'r');
@@ -67,109 +63,117 @@ function BlockWrapper(blockPath) {
     };
 }
 
-let fullReverseIndexDict = {};
-let batchReverseIndexDict = {};
-let batchCount = 0;
-const MAX_WORDS = 200;
-const rev_dir = 'rev_dir';
-const refPath = 'rev_ref.txt';
-const rev_idx = 'rev_idx.json';
-
-try {
-    fs.truncateSync(refPath);
-} catch (err) {
-    console.log('File not existing, no truncate required');
-}
-
-try {
-    fs.truncateSync(rev_idx);
-} catch (err) {
-    console.log('File not existing, no truncate required');
-}
-
-function flushIndexes() {
-    console.log('flushing...');
-    const idxPath = path.join(__dirname, rev_dir, `rev${batchCount}.json`);
+(async function makeMeAsync() {
+    
+    const commChannel = await RabbitWrapper({
+        from: 'FullReverseIndex',
+        messageHandler: fullReverseIndex
+    });
+    
+    let fullReverseIndexDict = {};
+    let batchReverseIndexDict = {};
+    let batchCount = 0;
+    const MAX_WORDS = 200;
+    const rev_dir = 'rev_dir';
+    const refPath = 'rev_ref.txt';
+    const rev_idx = 'rev_idx.json';
+    
     try {
-        fs.truncateSync(idxPath);
+        fs.truncateSync(refPath);
     } catch (err) {
         console.log('File not existing, no truncate required');
     }
+    
     try {
-        fs.appendFileSync(idxPath, JSON.stringify(batchReverseIndexDict));
-    } catch (errWriting) {
-        console.error(errWriting);
+        fs.truncateSync(rev_idx);
+    } catch (err) {
+        console.log('File not existing, no truncate required');
     }
-    batchCount++;
-    for (const word in batchReverseIndexDict) {
+    
+    function flushIndexes() {
+        console.log('flushing...');
+        const idxPath = path.join(__dirname, rev_dir, `rev${batchCount}.json`);
         try {
-            fs.appendFileSync(refPath, `${word} ${path.join(idxPath)}\n`);//weird bug when trying to write full reference dict
+            fs.truncateSync(idxPath);
+        } catch (err) {
+            console.log('File not existing, no truncate required');
+        }
+        try {
+            fs.appendFileSync(idxPath, JSON.stringify(batchReverseIndexDict));
         } catch (errWriting) {
             console.error(errWriting);
         }
+        batchCount++;
+        for (const word in batchReverseIndexDict) {
+            try {
+                fs.appendFileSync(refPath, `${word} ${path.join(idxPath)}\n`);//weird bug when trying to write full reference dict
+            } catch (errWriting) {
+                console.error(errWriting);
+            }
+        }
+        batchReverseIndexDict = {};
     }
-    batchReverseIndexDict = {};
-}
-
-function fullReverseIndex(data) {
-    console.log(data);
-    const pathsArr = JSON.parse(data);
     
-    const blocks = pathsArr.map((p) => new BlockWrapper(p));
-    
-    const firstWords = blocks.map(b => b.getNextWord());
-    const wordsQueue = [];
-    firstWords.forEach(fW => {
-        if (wordsQueue.indexOf(fW) === -1) {
-            return wordsQueue.push(fW);
-        }
-    });
-    wordsQueue.sort((a, b) => a.localeCompare(b));
-    
-    while (wordsQueue.length) {
-        const currentWorkingWord = wordsQueue.shift();
-        console.log(`${currentWorkingWord} - ${wordsQueue.length} words left`);
+    function fullReverseIndex(pathsArr, msgCb) {
+        console.log(pathsArr);
         
-        let workingBlocks = blocks.filter(b => b.getCurrentWord() === currentWorkingWord);
+        const blocks = pathsArr.map((p) => new BlockWrapper(p));
         
-        while (workingBlocks.length) {
-            workingBlocks.forEach(wB => {
-                const blockLine = wB.getCurrentLine();
-                if (blockLine === null) {
-                    return;
-                }
-                const [word, path, freq] = blockLine.split(' ');
-                if (!fullReverseIndexDict[word]) {
-                    fullReverseIndexDict[word] = {};
-                }
-                fullReverseIndexDict[word][path] = freq;
-                if (!batchReverseIndexDict[word]) {
-                    batchReverseIndexDict[word] = {};
-                }
-                batchReverseIndexDict[word][path] = freq;
-            });
-            workingBlocks = workingBlocks.filter(wB => wB.getNextWord() === currentWorkingWord);
-        }
-        
-        blocks.forEach(b => {
-            const cW = b.getCurrentWord();
-            if (cW !== null && wordsQueue.indexOf(cW) === -1) {
-                return wordsQueue.push(cW);
+        const firstWords = blocks.map(b => b.getNextWord());
+        const wordsQueue = [];
+        firstWords.forEach(fW => {
+            if (wordsQueue.indexOf(fW) === -1) {
+                return wordsQueue.push(fW);
             }
         });
-        
         wordsQueue.sort((a, b) => a.localeCompare(b));
         
-        if (Object.keys(batchReverseIndexDict).length >= MAX_WORDS) {
-            flushIndexes();
+        while (wordsQueue.length) {
+            const currentWorkingWord = wordsQueue.shift();
+            console.log(`${currentWorkingWord} - ${wordsQueue.length} words left`);
+            
+            let workingBlocks = blocks.filter(b => b.getCurrentWord() === currentWorkingWord);
+            
+            while (workingBlocks.length) {
+                workingBlocks.forEach(wB => {
+                    const blockLine = wB.getCurrentLine();
+                    if (blockLine === null) {
+                        return;
+                    }
+                    const [word, path, freq] = blockLine.split(' ');
+                    if (!fullReverseIndexDict[word]) {
+                        fullReverseIndexDict[word] = {};
+                    }
+                    fullReverseIndexDict[word][path] = freq;
+                    if (!batchReverseIndexDict[word]) {
+                        batchReverseIndexDict[word] = {};
+                    }
+                    batchReverseIndexDict[word][path] = freq;
+                });
+                workingBlocks = workingBlocks.filter(wB => wB.getNextWord() === currentWorkingWord);
+            }
+            
+            blocks.forEach(b => {
+                const cW = b.getCurrentWord();
+                if (cW !== null && wordsQueue.indexOf(cW) === -1) {
+                    return wordsQueue.push(cW);
+                }
+            });
+            
+            wordsQueue.sort((a, b) => a.localeCompare(b));
+            
+            if (Object.keys(batchReverseIndexDict).length >= MAX_WORDS) {
+                flushIndexes();
+            }
         }
+        
+        flushIndexes();
+        
+        blocks.forEach(b => b.cleanup());
+        
+        fs.appendFileSync(rev_idx, JSON.stringify(fullReverseIndexDict));
+        fullReverseIndexDict = {};
+        msgCb();
+        console.log('ALL DONE');
     }
-    
-    flushIndexes();
-    
-    blocks.forEach(b => b.cleanup());
-    
-    fs.appendFileSync(rev_idx, JSON.stringify(fullReverseIndexDict));
-    fullReverseIndexDict = {};
-    console.log('ALL DONE');
-}
+})();
