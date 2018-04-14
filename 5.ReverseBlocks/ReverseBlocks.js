@@ -20,6 +20,7 @@ const RabbitWrapper = require('../RabbitWrapper');
         // when this message arrives, direct index is already done, so this can go through
         const idxPathCount = Object.keys(idxPathDict).length;
         let currentIdxPathCount = 0;
+        let currentDocsCount = 0;
         
         const commChannel = await RabbitWrapper({
             from: 'ReverseBLocks',
@@ -38,6 +39,8 @@ const RabbitWrapper = require('../RabbitWrapper');
             
             const partialIdx = require(idxPath);
             let formattedData = [];
+    
+            currentDocsCount += Object.keys(partialIdx).length;
             
             for (const filePath in partialIdx) {
                 const pathIdx = partialIdx[filePath];
@@ -75,7 +78,10 @@ const RabbitWrapper = require('../RabbitWrapper');
             msgCb();
             
             if (currentIdxPathCount === idxPathCount) {
-                commChannel.sendMessage(blockPathsArr, (err) => {
+                return commChannel.sendMessage({
+                    docsCount: currentDocsCount,
+                    blocks: blockPathsArr
+                }, (err) => {
                     if (err) {
                         return msgCbBig(err, true);
                     }

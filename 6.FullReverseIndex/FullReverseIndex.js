@@ -114,7 +114,8 @@ function BlockWrapper(blockPath) {
         batchReverseIndexDict = {};
     }
     
-    function fullReverseIndex(pathsArr, msgCb) {
+    function fullReverseIndex(message, msgCb) {
+        const pathsArr = message.blocks;
         console.log(pathsArr);
         
         const blocks = pathsArr.map((p) => new BlockWrapper(p));

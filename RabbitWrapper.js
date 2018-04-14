@@ -4,11 +4,36 @@ const rabbitURL = 'amqp://guest:guest@localhost';
 const rabbitExchange = 'RIW';
 
 /**
- *
- * @param params {Object}
- * @param params.from {string|null}
- * @param params.to {string|null}
- * @param params.messageHandler {Function(message, cb)}
+ * @name RabbitCallback
+ * @type {Function}
+ * @param {Object} result
+ * @param {Object} error
+ */
+
+/**
+ * @name MessageHandler
+ * @type {Function}
+ * @param {Object} message
+ * @param {RabbitCallback} cb
+ */
+
+/**
+ * @name MyRabbitWrapper
+ * @type {Object}
+ * @property {function(Object, function(Object, Object))} sendMessage
+ */
+
+/**
+ * @typedef {Object} MyRabbitParams
+ * @property from {string|null}
+ * @property to {string|null}
+ * @property messageHandler {function(Object, function(Object, Object))}
+ */
+
+/**
+ * @async
+ * @param params {MyRabbitParams}
+ * @return {Promise<MyRabbitWrapper>}
  */
 async function RabbitWrapper(params) {
     let amqpC = null, amqpP = null;
@@ -47,11 +72,16 @@ async function RabbitWrapper(params) {
     };
     
     return {
+        /**
+         *
+         * @param msg {Object}
+         * @param cb {function(result, error)}
+         */
         sendMessage: (msg, cb) => {
             if (!params.to || !amqpP) {
                 return;
             }
-            
+        
             if (!msg) {
                 return;//in case the module doesn't return, but only sends events
             }
@@ -61,7 +91,7 @@ async function RabbitWrapper(params) {
             }
         
             amqpP.publish(params.to, JSON.stringify(msg), {persistent: true}, cb);
-            
+        
         }
     };
 }
