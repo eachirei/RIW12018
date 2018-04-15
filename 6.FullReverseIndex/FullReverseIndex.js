@@ -10,7 +10,8 @@
 // every X words write a partial rev_index and its path to a ref file
 // write full rev_index to file
 const fs = require('fs')
-    , path = require('path');
+    , path = require('path')
+    , MongoClient = require('mongodb').MongoClient;
 
 const RabbitWrapper = require('../RabbitWrapper');
 
@@ -64,6 +65,9 @@ function BlockWrapper(blockPath) {
 }
 
 (async function makeMeAsync() {
+    const mongoConnection = await MongoClient.connect('mongodb://localhost:27017');
+    const db = await mongoConnection.db('RIW');
+    const reverseIndexCollection = await db.collection('reverse-index');
     
     const commChannel = await RabbitWrapper({
         from: 'FullReverseIndex',
@@ -114,9 +118,31 @@ function BlockWrapper(blockPath) {
         batchReverseIndexDict = {};
     }
     
-    function fullReverseIndex(message, msgCb) {
-        const pathsArr = message.blocks;
+    async function fullReverseIndex(message, msgCb) {
+        const {docsCount, blocks: pathsArr} = message;
         console.log(pathsArr);
+        
+        async function finalizeWord(word) {
+            const revForWord = batchReverseIndexDict[word];
+            const docsWithWordCount = Object.values(revForWord).reduce((accum, {count, tf}) => accum + +count, 0);
+            const idf = Math.log(docsCount / (1 + docsWithWordCount));
+            try {
+                await reverseIndexCollection.updateOne({
+                    word
+                }, {
+                    "$set": {
+                        "paths": Object.entries(revForWord).map(([path, {count, tf}]) => ({
+                            path,
+                            count,
+                            tfidf: +tf * idf
+                        })),
+                        idf: idf
+                    }
+                }, {upsert: true});
+            } catch (err) {
+                console.error(err);
+            }
+        }
         
         const blocks = pathsArr.map((p) => new BlockWrapper(p));
         
@@ -145,14 +171,22 @@ function BlockWrapper(blockPath) {
                     if (!fullReverseIndexDict[word]) {
                         fullReverseIndexDict[word] = {};
                     }
-                    fullReverseIndexDict[word][path] = freq;
+                    fullReverseIndexDict[word][path] = {
+                        count: freq,
+                        tf
+                    };
                     if (!batchReverseIndexDict[word]) {
                         batchReverseIndexDict[word] = {};
                     }
-                    batchReverseIndexDict[word][path] = freq;
+                    batchReverseIndexDict[word][path] = {
+                        count: freq,
+                        tf
+                    };
                 });
                 workingBlocks = workingBlocks.filter(wB => wB.getNextWord() === currentWorkingWord);
             }
+    
+            await finalizeWord(currentWorkingWord);
             
             blocks.forEach(b => {
                 const cW = b.getCurrentWord();
