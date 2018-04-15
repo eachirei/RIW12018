@@ -124,7 +124,7 @@ function BlockWrapper(blockPath) {
         
         async function finalizeWord(word) {
             const revForWord = batchReverseIndexDict[word];
-            const docsWithWordCount = Object.values(revForWord).reduce((accum, {count, tf}) => accum + +count, 0);
+            const docsWithWordCount = Object.keys(revForWord).length;
             const idf = Math.log(docsCount / (1 + docsWithWordCount));
             try {
                 await reverseIndexCollection.updateOne({

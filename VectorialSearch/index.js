@@ -1,218 +1,47 @@
 const express = require('express')
-    , stem = require('stem-porter');
+    , stem = require('stem-porter')
+    , MongoClient = require('mongodb').MongoClient;
 
-const revRefO = require('./loadReverseReferences')();
+let directIndexCollection, reverseIndexCollection;
+
+(async () => {
+    const mongoConnection = await MongoClient.connect('mongodb://localhost:27017');
+    const db = await mongoConnection.db('RIW');
+    directIndexCollection = await db.collection('direct-index');
+    reverseIndexCollection = await db.collection('reverse-index');
+})();
+
 
 const app = express();
 
-const stopWordsMap = {
-    'a': true,
-    'about': true,
-    'above': true,
-    'after': true,
-    'again': true,
-    'against': true,
-    'all': true,
-    'am': true,
-    'an': true,
-    'and': true,
-    'any': true,
-    'are': true,
-    'aren\'t': true,
-    'as': true,
-    'at': true,
-    'be': true,
-    'because': true,
-    'been': true,
-    'before': true,
-    'being': true,
-    'below': true,
-    'between': true,
-    'both': true,
-    'but': true,
-    'by': true,
-    'can\'t': true,
-    'cannot': true,
-    'could': true,
-    'couldn\'t': true,
-    'did': true,
-    'didn\'t': true,
-    'do': true,
-    'does': true,
-    'doesn\'t': true,
-    'doing': true,
-    'don\'t': true,
-    'down': true,
-    'during': true,
-    'each': true,
-    'few': true,
-    'for': true,
-    'from': true,
-    'further': true,
-    'had': true,
-    'hadn\'t': true,
-    'has': true,
-    'hasn\'t': true,
-    'have': true,
-    'haven\'t': true,
-    'having': true,
-    'he': true,
-    'he\'d': true,
-    'he\'ll': true,
-    'he\'s': true,
-    'her': true,
-    'here': true,
-    'here\'s': true,
-    'hers': true,
-    'herself': true,
-    'him': true,
-    'himself': true,
-    'his': true,
-    'how': true,
-    'how\'s': true,
-    'i': true,
-    'i\'d': true,
-    'i\'ll': true,
-    'i\'m': true,
-    'i\'ve': true,
-    'if': true,
-    'in': true,
-    'into': true,
-    'is': true,
-    'isn\'t': true,
-    'it': true,
-    'it\'s': true,
-    'its': true,
-    'itself': true,
-    'let\'s': true,
-    'me': true,
-    'more': true,
-    'most': true,
-    'mustn\'t': true,
-    'my': true,
-    'myself': true,
-    'no': true,
-    'nor': true,
-    'not': true,
-    'of': true,
-    'off': true,
-    'on': true,
-    'once': true,
-    'only': true,
-    'or': true,
-    'other': true,
-    'ought': true,
-    'our': true,
-    'ours	ourselves': true,
-    'out': true,
-    'over': true,
-    'own': true,
-    'same': true,
-    'shan\'t': true,
-    'she': true,
-    'she\'d': true,
-    'she\'ll': true,
-    'she\'s': true,
-    'should': true,
-    'shouldn\'t': true,
-    'so': true,
-    'some': true,
-    'such': true,
-    'than': true,
-    'that': true,
-    'that\'s': true,
-    'the': true,
-    'their': true,
-    'theirs': true,
-    'them': true,
-    'themselves': true,
-    'then': true,
-    'there': true,
-    'there\'s': true,
-    'these': true,
-    'they': true,
-    'they\'d': true,
-    'they\'ll': true,
-    'they\'re': true,
-    'they\'ve': true,
-    'this': true,
-    'those': true,
-    'through': true,
-    'to': true,
-    'too': true,
-    'under': true,
-    'until': true,
-    'up': true,
-    'very': true,
-    'was': true,
-    'wasn\'t': true,
-    'we': true,
-    'we\'d': true,
-    'we\'ll': true,
-    'we\'re': true,
-    'we\'ve': true,
-    'were': true,
-    'weren\'t': true,
-    'what': true,
-    'what\'s': true,
-    'when': true,
-    'when\'s': true,
-    'where': true,
-    'where\'s': true,
-    'which': true,
-    'while': true,
-    'who': true,
-    'who\'s': true,
-    'whom': true,
-    'why': true,
-    'why\'s': true,
-    'with': true,
-    'won\'t': true,
-    'would': true,
-    'wouldn\'t': true,
-    'you': true,
-    'you\'d': true,
-    'you\'ll': true,
-    'you\'re': true,
-    'you\'ve': true,
-    'your': true,
-    'yours': true,
-    'yourself': true,
-    'yourselves': true
-};
+const stopWordsMap = require('../StopWords');
 
 // to add min length for word
 // need to do reverse index
 
-const exceptionsMap = {
-    'JSOUP': true,
-    'JavaScript': true,
-    'CSS': true,
-    'jquery': true,
-    'Java': true,
-    'HTML': true,
-    'jsoup': true,
-    'HTML5': true,
-    'wikipedia': true,
-    'Wikipedia': true,
-    'MIT': true,
-    'appendElement': true
-};
+const exceptionsMap = require('../ExceptionWords');
 
 app.use(express.urlencoded());
 
-function getRevFilesForWord(word) {
-    if (word === '') {
-        return [];
+function procWord(word) {
+    if (word === '' || stopWordsMap[word]) {
+        return null;
     }
     if (exceptionsMap[word]) {
-        return Object.keys(require(revRefO[word])[word]);
+        return word;
     }
-    if (stopWordsMap[word]) {//skip stopword
+    return stem(word);
+}
+
+function getRevFilesForWord(word) {
+    const proccedWord = procWord(word);
+    if (proccedWord === null) {
         return [];
     }
-    word = stem(word);
-    return Object.keys(require(revRefO[word])[word]);
+    if (exceptionsMap[proccedWord]) {
+        return Object.keys(require(revRefO[proccedWord])[proccedWord]);
+    }
+    return Object.keys(require(revRefO[proccedWord])[proccedWord]);
 }
 
 const opMaps = {
@@ -279,8 +108,58 @@ const opMaps = {
     }
 };
 
-app.get('/search', (req, res, next) => {
+async function getReverseIdx(query) {
+    const splitQuery = query.split(' ');
+    const queryTerms = [];
+    for (let i = 0; i < splitQuery.length; i++) {
+        if (i < (splitQuery.length - 1) && splitQuery[i] === 'NOT') {
+            i++;
+            continue;
+        }
+        if (splitQuery[i] in opMaps) {
+            continue;
+        }
+        const proccedWord = procWord(splitQuery[i]);
+        if (!proccedWord) {
+            continue;
+        }
+        if (queryTerms.indexOf(proccedWord) === -1) {
+            queryTerms.push(proccedWord);
+        }
+    }
+    const returnData = {
+        words: [],
+        paths: []
+    };
+    try {
+        returnData.words = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
+            _id: 0,
+            "paths.count": 0
+        }).toArray();
+        const pathsArr = [];
+        returnData.words.forEach(wIdx => {
+            wIdx.paths.forEach(p => {
+                if (pathsArr.indexOf(p.path) === -1) {
+                    pathsArr.push(p.path);
+                }
+            });
+        });
+        returnData.paths = await directIndexCollection.find({path: {"$in": pathsArr}}, {
+            _id: 0,
+            "words.count": 0,
+            "words.tf": 0
+        }).toArray();
+    } catch (err) {
+        console.error(err);
+    }
+    return returnData;
+}
+
+app.get('/search', async (req, res, next) => {
     const searchQuery = req.query.query;
+    
+    const result = await getReverseIdx(searchQuery);
+    
     let searchTerms = searchQuery.split(' ');
     
     //normalize searchTerms
@@ -304,7 +183,7 @@ app.get('/search', (req, res, next) => {
         let a, op, b;
         [a, op, b, ...searchTerms] = searchTerms;
         if (!(op in opMaps)) {
-            return res.send('INVALID QUERY');
+            op = 'OR';
         }
         searchTerms.unshift(opMaps[op](a, b));
     }

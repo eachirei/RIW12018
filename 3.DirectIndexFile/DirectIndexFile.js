@@ -41,11 +41,11 @@ function processWord(freqDict, currentWord) {
     if (currentWord === '') {
         return;
     }
-    if (currentWord.length < 3) {
-        return;
-    }
     if (exceptionsMap[currentWord]) {
         return addWordToMap(freqDict, currentWord);
+    }
+    if (currentWord.length < 3) {
+        return;
     }
     if (stopWordsMap[currentWord]) {//skip stopword
         return;
