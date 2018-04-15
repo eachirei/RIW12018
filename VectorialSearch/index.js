@@ -153,11 +153,30 @@ async function getReverseIdx(query) {
                 }
             });
         });
-        returnData.paths = await directIndexCollection.find({path: {"$in": pathsArr}}, {
-            _id: 0,
-            "words.count": 0,
-            "words.tf": 0
-        }).toArray();
+        returnData.paths = await reverseIndexCollection.aggregate([
+            {"$unwind": "$paths"},
+            {"$match": {"paths.path": {"$in": pathsArr}}},
+            {"$unwind": "$paths"},
+            {
+                "$project": {
+                    "path": "$paths.path",
+                    "tfidf": "$paths.tfidf",
+                    "word": 1
+                }
+            },
+            {
+                "$group": {
+                    "_id": {"path": "$path"},
+                    "mod": {"$sum": {"$multiply": ["$tfidf", "$tfidf"]}},
+                }
+            },
+            {
+                "$project": {
+                    "path": "$_id.path",
+                    "mod": {"$sqrt": "$mod"}
+                }
+            }
+        ]).toArray();
     } catch (err) {
         console.error(err);
     }
