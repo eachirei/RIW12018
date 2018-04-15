@@ -33,89 +33,97 @@ function procWord(word) {
     return stem(word);
 }
 
-function getRevFilesForWord(word) {
-    const proccedWord = procWord(word);
-    if (proccedWord === null) {
-        return [];
-    }
-    if (exceptionsMap[proccedWord]) {
-        return Object.keys(require(revRefO[proccedWord])[proccedWord]);
-    }
-    return Object.keys(require(revRefO[proccedWord])[proccedWord]);
-}
-
 const opMaps = {
-    'AND': (a, b) => {
-        if (typeof a === 'string') {
-            a = getRevFilesForWord(a);
+    'AND': true,
+    'OR': true,
+    'NOT': true
+};
+
+function opIniter(revIdx) {
+    function getRevFilesForWord(word) {
+        const proccedWord = procWord(word);
+        if (proccedWord === null) {
+            return [];
         }
-        if (typeof b === 'string') {
-            b = getRevFilesForWord(b);
+        if (exceptionsMap[proccedWord]) {
+            return revIdx[proccedWord] || [];
         }
-        if (b.length < a.length) {
-            for (let i = 0; i < b.length; i++) {
-                if (a.indexOf(b[i]) === -1) {
-                    b.splice(i, 1);
+        return revIdx[proccedWord] || [];
+    }
+    
+    return {
+        'AND': (a, b) => {
+            if (typeof a === 'string') {
+                a = getRevFilesForWord(a);
+            }
+            if (typeof b === 'string') {
+                b = getRevFilesForWord(b);
+            }
+            if (b.length < a.length) {
+                for (let i = 0; i < b.length; i++) {
+                    if (a.indexOf(b[i]) === -1) {
+                        b.splice(i, 1);
+                        i--;
+                    }
+                }
+                return b;
+            }
+            for (let i = 0; i < a.length; i++) {
+                if (b.indexOf(a[i]) === -1) {
+                    a.splice(i, 1);
                     i--;
                 }
             }
-            return b;
-        }
-        for (let i = 0; i < a.length; i++) {
-            if (b.indexOf(a[i]) === -1) {
-                a.splice(i, 1);
-                i--;
+            return a;
+        },
+        'OR': (a, b) => {
+            if (typeof a === 'string') {
+                a = getRevFilesForWord(a);
             }
-        }
-        return a;
-    },
-    'OR': (a, b) => {
-        if (typeof a === 'string') {
-            a = getRevFilesForWord(a);
-        }
-        if (typeof b === 'string') {
-            b = getRevFilesForWord(b);
-        }
-        if (b.length < a.length) {
+            if (typeof b === 'string') {
+                b = getRevFilesForWord(b);
+            }
+            if (b.length < a.length) {
+                for (let i = 0; i < b.length; i++) {
+                    if (a.indexOf(b[i]) === -1) {
+                        a.push(b[i]);
+                    }
+                }
+                return a;
+            }
+            for (let i = 0; i < a.length; i++) {
+                if (b.indexOf(a[i]) === -1) {
+                    b.push(a[i]);
+                }
+            }
+            return b;
+        },
+        'NOT': (a, b) => {
+            if (typeof a === 'string') {
+                a = getRevFilesForWord(a);
+            }
+            if (typeof b === 'string') {
+                b = getRevFilesForWord(b);
+            }
             for (let i = 0; i < b.length; i++) {
-                if (a.indexOf(b[i]) === -1) {
-                    a.push(b[i]);
+                let aIdx = a.indexOf(b[i]);
+                if (aIdx !== -1) {
+                    a.splice(aIdx, 1);
                 }
             }
             return a;
         }
-        for (let i = 0; i < a.length; i++) {
-            if (b.indexOf(a[i]) === -1) {
-                b.push(a[i]);
-            }
-        }
-        return b;
-    },
-    'NOT': (a, b) => {
-        if (typeof a === 'string') {
-            a = getRevFilesForWord(a);
-        }
-        if (typeof b === 'string') {
-            b = getRevFilesForWord(b);
-        }
-        for (let i = 0; i < b.length; i++) {
-            let aIdx = a.indexOf(b[i]);
-            if (aIdx !== -1) {
-                a.splice(aIdx, 1);
-            }
-        }
-        return a;
-    }
-};
+    };
+}
 
 async function getReverseIdx(query) {
     const splitQuery = query.split(' ');
     const queryTerms = [];
     for (let i = 0; i < splitQuery.length; i++) {
-        if (i < (splitQuery.length - 1) && splitQuery[i] === 'NOT') {
-            i++;
-            continue;
-        }
+        // if (i < (splitQuery.length - 1) && splitQuery[i] === 'NOT') {
+        //     i++;
+        //     continue;
+        // }
         if (splitQuery[i] in opMaps) {
             continue;
         }
@@ -128,16 +136,17 @@ async function getReverseIdx(query) {
         }
     }
     const returnData = {
-        words: [],
+        words: {},
         paths: []
     };
     try {
-        returnData.words = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
+        const tempWords = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
             _id: 0,
             "paths.count": 0
         }).toArray();
         const pathsArr = [];
-        returnData.words.forEach(wIdx => {
+        tempWords.forEach(wIdx => {
+            returnData.words[wIdx.word] = wIdx.paths.map(p => p.path);
             wIdx.paths.forEach(p => {
                 if (pathsArr.indexOf(p.path) === -1) {
                     pathsArr.push(p.path);
@@ -158,7 +167,9 @@ async function getReverseIdx(query) {
 app.get('/search', async (req, res, next) => {
     const searchQuery = req.query.query;
     
-    const result = await getReverseIdx(searchQuery);
+    const mongoData = await getReverseIdx(searchQuery);
+    
+    const queryApplier = opIniter(mongoData.words);
     
     let searchTerms = searchQuery.split(' ');
     
@@ -183,13 +194,15 @@ app.get('/search', async (req, res, next) => {
         let a, op, b;
         [a, op, b, ...searchTerms] = searchTerms;
         if (!(op in opMaps)) {
+            searchTerms.unshift(b);
+            b = op;
             op = 'OR';
         }
-        searchTerms.unshift(opMaps[op](a, b));
+        searchTerms.unshift(queryApplier[op](a, b));
     }
     
     if (typeof searchTerms[0] === 'string') {
-        return res.json(getRevFilesForWord(searchTerms[0]));
+        return res.json(mongoData.paths[procWord(searchTerms[0])]);
     }
     
     return res.json(searchTerms[0]);
