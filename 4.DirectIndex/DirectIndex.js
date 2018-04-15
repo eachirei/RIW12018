@@ -33,6 +33,7 @@ const RabbitWrapper = require('../RabbitWrapper');
         const MAX_FILES_INDEX = 30;
         const idx_dir = 'idx_dir';
         let idxCount = 0;
+        let stopReceiving = false;
         
         function flushIndexes() {
             if (!Object.keys(workingBatch).length) {
@@ -69,7 +70,10 @@ const RabbitWrapper = require('../RabbitWrapper');
         
         //better error handling here and overall
         
-        function wtv(message, msgCb) {
+        async function wtv(message, msgCb) {
+            if (stopReceiving) {
+                return msgCb(true, true);
+            }
             const filePath = message.filePath
                 , fileJSON = message.fileJSON;
             
@@ -82,10 +86,13 @@ const RabbitWrapper = require('../RabbitWrapper');
             }
             if (currentFilesCount === filesCount) { // to do this
                 flushIndexes();
-                return commChannelBarrier.sendMessage(idxPathDict, (err) => {
+                stopReceiving = true;
+                return commChannelBarrier.sendMessage(idxPathDict, async (err) => {
+                    await commChannel.close();
                     idxPathDict = {};
                     if (err) {
-                        return msgCbBig(err, true);
+                        console.error(err);
+                        return msgCbBig(err, false); // this could be handled better
                     }
                     return msgCbBig();
                 });

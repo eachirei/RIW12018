@@ -9,10 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-	  "amqp-wrapper": "^5.5.2",
+    "amqp-wrapper": "git+https://git@github.com/eachirei/node-amqp-wrapper.git#v5.5.3",
     "cheerio": "^1.0.0-rc.2",
     "express": "^4.16.2",
-	  "node-ipc": "^9.1.1",
-	  "stem-porter": "0.0.1"
+    "mongodb": "^3.0.6",
+    "node-ipc": "^9.1.1",
+    "stem-porter": "0.0.1"
   }
 }

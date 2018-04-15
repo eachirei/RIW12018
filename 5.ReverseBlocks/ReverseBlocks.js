@@ -25,21 +25,26 @@ const RabbitWrapper = require('../RabbitWrapper');
         const commChannel = await RabbitWrapper({
             from: 'ReverseBLocks',
             to: 'FullReverseIndex',
-            messageHandler: reverseBlock
+            messageHandler: reverseBlock,
+            prefetchCount: 1
         });
         
         const blocksDir = 'blocks_dir';
         let blockCount = 0;
         const blockPathsArr = [];
+        let stopReceiving = false;
         
-        function reverseBlock(message, msgCb) {
+        async function reverseBlock(message, msgCb) {
+            if (stopReceiving) {
+                return msgCb(true, true);
+            }
             currentIdxPathCount++;
             console.log(message.data);
             const idxPath = message.data;
             
             const partialIdx = require(idxPath);
             let formattedData = [];
-    
+            
             currentDocsCount += Object.keys(partialIdx).length;
             
             for (const filePath in partialIdx) {
@@ -78,12 +83,15 @@ const RabbitWrapper = require('../RabbitWrapper');
             msgCb();
             
             if (currentIdxPathCount === idxPathCount) {
+                stopReceiving = true;
                 return commChannel.sendMessage({
                     docsCount: currentDocsCount,
                     blocks: blockPathsArr
-                }, (err) => {
+                }, async (err) => {
+                    await commChannel.close();
                     if (err) {
-                        return msgCbBig(err, true);
+                        console.error(err);
+                        return msgCbBig(err, false); // this could be handled better
                     }
                     return msgCbBig();
                 });
