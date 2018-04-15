@@ -16,7 +16,7 @@ const RabbitWrapper = require('../RabbitWrapper');
         let currentFilesCount = 0;
         
         const commChannel = await RabbitWrapper({
-            from: 'DirectIndex',
+            from: 'BatchIndexes',
             to: 'ReverseBLocks',
             messageHandler: wtv
         });

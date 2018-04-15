@@ -241,8 +241,8 @@ function processWord(freqDict, currentWord) {
 
 (async function makeMeAsync() {
     const commChannel = await RabbitWrapper({
-        from: 'TextToJSON',
-        to: 'DirectIndex',
+        from: 'DirectIndexFile',
+        to: 'BatchIndexes',
         messageHandler: processFile
     });
     

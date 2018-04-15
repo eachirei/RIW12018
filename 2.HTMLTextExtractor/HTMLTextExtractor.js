@@ -8,7 +8,7 @@ const RabbitWrapper = require('../RabbitWrapper');
 (async function makeMeAsync() {
     const commChannel = await RabbitWrapper({
         from: 'HTMLTextExtractor',
-        to: 'TextToJSON',
+        to: 'DirectIndexFile',
         messageHandler: extractTextFromHtmlFile
     });
     
