@@ -208,15 +208,17 @@ app.get('/search', async (req, res, next) => {
         return res.send('NO QUERIES SPECIFIED');
     }
     
-    if (searchTerms.length % 2 === 0) {
-        return res.send('INVALID SEARCH QUERY');
-    }
+    // if (searchTerms.length % 2 === 0) {
+    //     return res.send('INVALID SEARCH QUERY');
+    // }
     
     while (searchTerms.length !== 1) {
         let a, op, b;
         [a, op, b, ...searchTerms] = searchTerms;
         if (!(op in opMaps)) {
-            searchTerms.unshift(b);
+            if (b) {
+                searchTerms.unshift(b);
+            }
             b = op;
             op = 'OR';
         }
@@ -248,15 +250,15 @@ app.get('/search', async (req, res, next) => {
         return ((mongoData.wordsWithIDFs.find(wI => wI.word === word) || {paths: []}).paths.find(pO => pO.path === path) || {}).tfidf || 0;
     }
     
-    return res.json(resultDocs.sort((pathA, pathB) => {
-        const downA = (queryModulus * mongoData.pathsWithModulus[pathA]) || 1;
-        const upA = Object.entries(searchTermsMap).reduce((accum, [sT, sTO]) => accum + sTO.tf * sTO.idf * getTFIDF(pathA, sT), 0);
-        const downB = (queryModulus * mongoData.pathsWithModulus[pathB]) || 1;
-        const upB = Object.entries(searchTermsMap).reduce((accum, [sT, sTO]) => accum + sTO.tf * sTO.idf * getTFIDF(pathB, sT), 0);
-        const cosA = upA / downA;
-        const cosB = upB / downB;
-        return cosB - cosA;
-    }));
+    return res.json(resultDocs.map(path => {
+        const down = (queryModulus * mongoData.pathsWithModulus[path]) || 1;
+        const up = Object.entries(searchTermsMap).reduce((accum, [sT, sTO]) => accum + sTO.tf * sTO.idf * getTFIDF(path, sT), 0);
+        const cos = up / down;
+        return {
+            path,
+            cos
+        };
+    }).sort((a, b) => b.cos - a.cos));
 });
 
 app.listen(3000);
