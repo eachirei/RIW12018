@@ -1,6 +1,7 @@
 const fs = require('fs')
     , path = require('path')
-    , stem = require('stem-porter');
+    , stem = require('stem-porter')
+    , MongoClient = require('mongodb').MongoClient;
 
 const RabbitWrapper = require('../RabbitWrapper');
 
@@ -252,6 +253,10 @@ function computeTF(freqDict) {
 }
 
 (async function makeMeAsync() {
+    const mongoConnection = await MongoClient.connect('mongodb://localhost:27017');
+    const db = await mongoConnection.db('RIW');
+    const directIndexCollection = await db.collection('direct-index');
+    
     const commChannel = await RabbitWrapper({
         from: 'DirectIndexFile',
         to: 'BatchIndexes',
@@ -262,17 +267,38 @@ function computeTF(freqDict) {
         if (!message || !message.data) {
             return msgCb(null);
         }
-        
-        function finalizeIndex() {
-            commChannel.sendMessage({
-                filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
-                fileJSON: computeTF(freqDict)
-            }, (err) => {
-                if (err) {
-                    return msgCb(err, true);
-                }
-                return msgCb();
-            });
+    
+        async function finalizeIndex() {
+            const htmlFilePath = path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`);
+            const TFed = computeTF(freqDict);
+            try {
+                await directIndexCollection.updateOne({
+                    path: htmlFilePath
+                }, {
+                    "$set": {
+                        "words": Object.entries(TFed).map(([word, {count, tf}]) => ({
+                            word,
+                            count,
+                            tf
+                        }))
+                    }
+                }, {upsert: true});
+                await (() => new Promise((resolve, reject) => {
+                    commChannel.sendMessage({
+                        filePath: htmlFilePath,
+                        fileJSON: TFed
+                    }, (err) => {
+                        if (err) {
+                            msgCb(err, true);
+                            return reject(err);
+                        }
+                        msgCb();
+                        return resolve();
+                    });
+                }))();
+            } catch (err) {
+                console.error(err);
+            }
             freqDict = {};
         }
         
@@ -299,19 +325,19 @@ function computeTF(freqDict) {
                 currentWord += currentChar;
             });
         });
-        
-        readStream.on('error', (err) => {
+    
+        readStream.on('error', async (err) => {
             console.error(err);
             processWord(freqDict, currentWord);
-            
-            finalizeIndex();
-        });
         
-        readStream.on('close', () => {
+            await finalizeIndex();
+        });
+    
+        readStream.on('close', async () => {
             console.log(`closed ${filePath}`);
             processWord(freqDict, currentWord);
-            
-            finalizeIndex();
+        
+            await finalizeIndex();
         });
         
     }
