@@ -187,6 +187,7 @@ async function getReverseIdx(query) {
 }
 
 app.get('/search', async (req, res, next) => {
+    console.time("search");
     const searchQuery = req.query.query;
     
     const mongoData = await getReverseIdx(searchQuery);
@@ -250,7 +251,7 @@ app.get('/search', async (req, res, next) => {
         return ((mongoData.wordsWithIDFs.find(wI => wI.word === word) || {paths: []}).paths.find(pO => pO.path === path) || {}).tfidf || 0;
     }
     
-    return res.json(resultDocs.map(path => {
+    res.json(resultDocs.map(path => {
         const down = (queryModulus * mongoData.pathsWithModulus[path]) || 1;
         const up = Object.entries(searchTermsMap).reduce((accum, [sT, sTO]) => accum + sTO.tf * sTO.idf * getTFIDF(path, sT), 0);
         const cos = up / down;
@@ -259,6 +260,8 @@ app.get('/search', async (req, res, next) => {
             cos
         };
     }).sort((a, b) => b.cos - a.cos));
+    
+    return console.timeEnd("search");
 });
 
 app.listen(3000);
