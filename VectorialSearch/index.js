@@ -137,15 +137,16 @@ async function getReverseIdx(query) {
     }
     const returnData = {
         words: {},
-        paths: []
+        pathsWithModulus: {},
+        wordsWithIDFs: []
     };
     try {
-        const tempWords = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
+        returnData.wordsWithIDFs = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
             _id: 0,
             "paths.count": 0
         }).toArray();
         const pathsArr = [];
-        tempWords.forEach(wIdx => {
+        returnData.wordsWithIDFs.forEach(wIdx => {
             returnData.words[wIdx.word] = wIdx.paths.map(p => p.path);
             wIdx.paths.forEach(p => {
                 if (pathsArr.indexOf(p.path) === -1) {
@@ -153,7 +154,7 @@ async function getReverseIdx(query) {
                 }
             });
         });
-        returnData.paths = await reverseIndexCollection.aggregate([
+        const tempPaths = await reverseIndexCollection.aggregate([
             {"$unwind": "$paths"},
             {"$match": {"paths.path": {"$in": pathsArr}}},
             {"$unwind": "$paths"},
@@ -173,10 +174,12 @@ async function getReverseIdx(query) {
             {
                 "$project": {
                     "path": "$_id.path",
-                    "mod": {"$sqrt": "$mod"}
+                    "mod": {"$sqrt": "$mod"},
+                    "_id": 0
                 }
             }
         ]).toArray();
+        tempPaths.forEach(tP => returnData.pathsWithModulus[tP.path] = tP.mod);
     } catch (err) {
         console.error(err);
     }
@@ -220,11 +223,40 @@ app.get('/search', async (req, res, next) => {
         searchTerms.unshift(queryApplier[op](a, b));
     }
     
-    if (typeof searchTerms[0] === 'string') {
-        return res.json(mongoData.paths[procWord(searchTerms[0])]);
+    const resultDocs = typeof searchTerms[0] === 'string' ? (mongoData.pathsWithModulus[procWord(searchTerms[0])] || []) : searchTerms[0];
+    
+    searchTerms = searchQuery.split(' ').filter(sT => !opMaps[sT]).map(sT => procWord(sT)).filter(sT => sT);
+    
+    const searchTermsMap = {};
+    
+    searchTerms.forEach(procced => {
+        if (!searchTermsMap[procced]) {
+            const idfO = mongoData.wordsWithIDFs.find(wO => wO.word === procced);
+            searchTermsMap[procced] = {
+                count: 0,
+                tf: 0,
+                idf: idfO ? idfO.idf : 0
+            };
+        }
+        searchTermsMap[procced].count++;
+        searchTermsMap[procced].tf = searchTermsMap[procced].count / searchTerms.length;
+    });
+    
+    const queryModulus = Math.sqrt(Object.values(searchTermsMap).reduce((accum, sTO) => accum + Math.pow(sTO.tf * sTO.idf, 2), 0));
+    
+    function getTFIDF(path, word) {
+        return ((mongoData.wordsWithIDFs.find(wI => wI.word === word) || {paths: []}).paths.find(pO => pO.path === path) || {}).tfidf || 0;
     }
     
-    return res.json(searchTerms[0]);
+    return res.json(resultDocs.sort((pathA, pathB) => {
+        const downA = (queryModulus * mongoData.pathsWithModulus[pathA]) || 1;
+        const upA = Object.entries(searchTermsMap).reduce((accum, [sT, sTO]) => accum + sTO.tf * sTO.idf * getTFIDF(pathA, sT), 0);
+        const downB = (queryModulus * mongoData.pathsWithModulus[pathB]) || 1;
+        const upB = Object.entries(searchTermsMap).reduce((accum, [sT, sTO]) => accum + sTO.tf * sTO.idf * getTFIDF(pathB, sT), 0);
+        const cosA = upA / downA;
+        const cosB = upB / downB;
+        return cosB - cosA;
+    }));
 });
 
 app.listen(3000);
