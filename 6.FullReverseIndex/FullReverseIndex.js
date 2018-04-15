@@ -141,7 +141,7 @@ function BlockWrapper(blockPath) {
                     if (blockLine === null) {
                         return;
                     }
-                    const [word, path, freq] = blockLine.split(' ');
+                    const [word, path, freq, tf] = blockLine.split(' ');
                     if (!fullReverseIndexDict[word]) {
                         fullReverseIndexDict[word] = {};
                     }

@@ -50,7 +50,7 @@ const RabbitWrapper = require('../RabbitWrapper');
             for (const filePath in partialIdx) {
                 const pathIdx = partialIdx[filePath];
                 for (const word in pathIdx) {
-                    formattedData.push(`${word} ${filePath} ${pathIdx[word]}`);
+                    formattedData.push(`${word} ${filePath} ${pathIdx[word].count} ${pathIdx[word].tf}`);
                 }
             }
             

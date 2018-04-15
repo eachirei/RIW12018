@@ -239,6 +239,18 @@ function processWord(freqDict, currentWord) {
     return addWordToMap(freqDict, processCommonWord(currentWord))
 }
 
+function computeTF(freqDict) {
+    const noWords = Object.values(freqDict).reduce((accum, count) => accum + count, 0);
+    const TFed = {};
+    for (const [word, count] of Object.entries(freqDict)) {
+        TFed[word] = {
+            count,
+            tf: count / noWords
+        };
+    }
+    return TFed;
+}
+
 (async function makeMeAsync() {
     const commChannel = await RabbitWrapper({
         from: 'DirectIndexFile',
@@ -250,6 +262,20 @@ function processWord(freqDict, currentWord) {
         if (!message || !message.data) {
             return msgCb(null);
         }
+        
+        function finalizeIndex() {
+            commChannel.sendMessage({
+                filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
+                fileJSON: computeTF(freqDict)
+            }, (err) => {
+                if (err) {
+                    return msgCb(err, true);
+                }
+                return msgCb();
+            });
+            freqDict = {};
+        }
+        
         const filePath = message.data;
         console.log(filePath);
         
@@ -277,32 +303,15 @@ function processWord(freqDict, currentWord) {
         readStream.on('error', (err) => {
             console.error(err);
             processWord(freqDict, currentWord);
-            commChannel.sendMessage({
-                filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
-                fileJSON: freqDict
-            }, (err) => {
-                if (err) {
-                    return msgCb(err, true);
-                }
-                return msgCb();
-            });//resolve with what was done till now
-            freqDict = {};
+            
+            finalizeIndex();
         });
         
         readStream.on('close', () => {
             console.log(`closed ${filePath}`);
             processWord(freqDict, currentWord);
-    
-            commChannel.sendMessage({
-                filePath: path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`),
-                fileJSON: freqDict
-            }, (err) => {
-                if (err) {
-                    return msgCb(err, true);
-                }
-                return msgCb();
-            });
-            freqDict = {};
+            
+            finalizeIndex();
         });
         
     }
