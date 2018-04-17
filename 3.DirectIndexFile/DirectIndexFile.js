@@ -45,13 +45,14 @@ function processWord(freqDict, currentWord) {
     if (exceptionsMap[currentWord]) {
         return addWordToMap(freqDict, currentWord);
     }
-    if (currentWord.length < 3) {
-        return;
-    }
     if (stopWordsMap[currentWord]) {//skip stopword
         return;
     }
-    return addWordToMap(freqDict, processCommonWord(currentWord))
+    currentWord = processCommonWord(currentWord);
+    if (currentWord.length < 3) {
+        return;
+    }
+    return addWordToMap(freqDict, currentWord);
 }
 
 function computeTF(freqDict) {
