@@ -82,9 +82,7 @@ function BlockWrapper(blockPath) {
         async function finalizeWord(revForWord, word) {
             const docsWithWordCount = Object.keys(revForWord).length;
             const idf = Math.log(docsCount / (1 + docsWithWordCount));
-            // console.time('updateDB');
             const now = Date.now();
-            // try {
             await reverseIndexCollection.updateOne({
                     word
                 }, {
@@ -97,11 +95,7 @@ function BlockWrapper(blockPath) {
                         idf: idf
                     }
                 }, {upsert: true});
-            // } catch (err) {
-            //     console.error(err);
-            // }
             mongoTime += Date.now() - now;
-            // console.timeEnd('updateDB');
         }
         
         console.time('startReverse');
@@ -122,7 +116,6 @@ function BlockWrapper(blockPath) {
             console.log(`${currentWorkingWord} - ${wordsQueue.length} words left in queue`);
             
             let workingBlocks = blocks.filter(b => b.getCurrentWord() === currentWorkingWord);
-            // console.time('wordDone');
             for (let i = 0; i < workingBlocks.length; i++) {
                 const wB = workingBlocks[i];
                 do {
@@ -139,7 +132,6 @@ function BlockWrapper(blockPath) {
             }
     
             await finalizeWord(wordO, currentWorkingWord);
-            // console.timeEnd('wordDone');
             
             blocks.forEach(b => {
                 const cW = b.getCurrentWord();
@@ -153,6 +145,8 @@ function BlockWrapper(blockPath) {
         }
         
         blocks.forEach(b => b.cleanup());
+    
+        console.time('finalization');
         
         const docs = await directIndexCollection.distinct('path');
         
@@ -191,6 +185,7 @@ function BlockWrapper(blockPath) {
                 }
             });
         }));
+        console.timeEnd('finalization');
         
         msgCb();
         console.timeEnd('startReverse');

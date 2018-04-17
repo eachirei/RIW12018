@@ -46,9 +46,9 @@ function opIniter(revIdx) {
             return [];
         }
         if (exceptionsMap[proccedWord]) {
-            return revIdx[proccedWord] || [];
+            return [...(revIdx[proccedWord] || [])];
         }
-        return revIdx[proccedWord] || [];
+        return [...(revIdx[proccedWord] || [])];
     }
     
     return {
@@ -175,7 +175,7 @@ async function getReverseIdx(query) {
 
 app.get('/search', async (req, res, next) => {
     console.time("search");
-    const searchQuery = req.query.query;
+    const searchQuery = req.query.query.toLowerCase();
     
     const mongoData = await getReverseIdx(searchQuery);
     
@@ -196,10 +196,6 @@ app.get('/search', async (req, res, next) => {
         return res.send('NO QUERIES SPECIFIED');
     }
     
-    // if (searchTerms.length % 2 === 0) {
-    //     return res.send('INVALID SEARCH QUERY');
-    // }
-    
     while (searchTerms.length !== 1) {
         let a, op, b;
         [a, op, b, ...searchTerms] = searchTerms;
@@ -208,14 +204,22 @@ app.get('/search', async (req, res, next) => {
                 searchTerms.unshift(b);
             }
             b = op;
-            op = 'OR';
+            op = 'or';
         }
         searchTerms.unshift(queryApplier[op](a, b));
     }
     
     const resultDocs = typeof searchTerms[0] === 'string' ? (mongoData.words[procWord(searchTerms[0])] || []) : searchTerms[0];
     
-    searchTerms = searchQuery.split(' ').filter(sT => !opMaps[sT]).map(sT => procWord(sT)).filter(sT => sT);
+    searchTerms = searchQuery.split(' ').filter((sT, idx, arr) => {
+        if (!opMaps[sT]) {
+            if (idx > 0) {
+                return arr[idx - 1] !== 'not';
+            }
+            return true;
+        }
+        return false;
+    }).map(sT => procWord(sT)).filter(sT => sT);
     
     const searchTermsMap = {};
     
@@ -238,7 +242,7 @@ app.get('/search', async (req, res, next) => {
         return ((mongoData.wordsWithIDFs[word] || {paths: []}).paths.find(pO => pO.path === path) || {}).tfidf || 0;
     }
     
-    res.json(resultDocs.map(path => {
+    const finalSearchResult = resultDocs.map(path => {
         const down = (queryModulus * mongoData.pathsWithModulus[path]) || 1;
         const up = Object.entries(searchTermsMap).reduce((accum, [sT, sTO]) => accum + sTO.tf * sTO.idf * getTFIDF(path, sT), 0);
         const cos = up / down;
@@ -246,7 +250,16 @@ app.get('/search', async (req, res, next) => {
             path,
             cos
         };
-    }).sort((a, b) => b.cos - a.cos));
+    }).sort((a, b) => b.cos - a.cos);
+    
+    // res.json({
+    //     count: finalSearchResult.length,
+    //     results: finalSearchResult
+    // });
+    
+    
+    res.send(`<html><head></head><body><p>${req.query.query} - ${finalSearchResult.length}</p>
+</body></html>`);
     
     return console.timeEnd("search");
 });
