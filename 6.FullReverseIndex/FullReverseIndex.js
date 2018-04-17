@@ -10,7 +10,6 @@
 // every X words write a partial rev_index and its path to a ref file
 // write full rev_index to file
 const fs = require('fs')
-    , path = require('path')
     , MongoClient = require('mongodb').MongoClient;
 
 const RabbitWrapper = require('../RabbitWrapper');
@@ -74,58 +73,14 @@ function BlockWrapper(blockPath) {
         messageHandler: fullReverseIndex
     });
     
-    let fullReverseIndexDict = {};
-    let batchReverseIndexDict = {};
-    let batchCount = 0;
-    const MAX_WORDS = 200;
-    const rev_dir = 'rev_dir';
-    const refPath = 'rev_ref.txt';
-    const rev_idx = 'rev_idx.json';
-    
-    try {
-        fs.truncateSync(refPath);
-    } catch (err) {
-        console.log('File not existing, no truncate required');
-    }
-    
-    try {
-        fs.truncateSync(rev_idx);
-    } catch (err) {
-        console.log('File not existing, no truncate required');
-    }
-    
-    function flushIndexes() {
-        console.log('flushing...');
-        const idxPath = path.join(__dirname, rev_dir, `rev${batchCount}.json`);
-        try {
-            fs.truncateSync(idxPath);
-        } catch (err) {
-            console.log('File not existing, no truncate required');
-        }
-        try {
-            fs.appendFileSync(idxPath, JSON.stringify(batchReverseIndexDict));
-        } catch (errWriting) {
-            console.error(errWriting);
-        }
-        batchCount++;
-        for (const word in batchReverseIndexDict) {
-            try {
-                fs.appendFileSync(refPath, `${word} ${path.join(idxPath)}\n`);//weird bug when trying to write full reference dict
-            } catch (errWriting) {
-                console.error(errWriting);
-            }
-        }
-        batchReverseIndexDict = {};
-    }
-    
     async function fullReverseIndex(message, msgCb) {
         const {docsCount, blocks: pathsArr} = message;
         console.log(pathsArr);
-        
-        async function finalizeWord(word) {
-            const revForWord = batchReverseIndexDict[word];
+    
+        async function finalizeWord(revForWord, word) {
             const docsWithWordCount = Object.keys(revForWord).length;
             const idf = Math.log(docsCount / (1 + docsWithWordCount));
+            // console.time('updateDB');
             try {
                 await reverseIndexCollection.updateOne({
                     word
@@ -142,6 +97,7 @@ function BlockWrapper(blockPath) {
             } catch (err) {
                 console.error(err);
             }
+            // console.timeEnd('updateDB');
         }
         
         const blocks = pathsArr.map((p) => new BlockWrapper(p));
@@ -157,36 +113,28 @@ function BlockWrapper(blockPath) {
         
         while (wordsQueue.length) {
             const currentWorkingWord = wordsQueue.shift();
-            console.log(`${currentWorkingWord} - ${wordsQueue.length} words left`);
+            const wordO = {};
+            console.log(`${currentWorkingWord} - ${wordsQueue.length} words left in queue`);
             
             let workingBlocks = blocks.filter(b => b.getCurrentWord() === currentWorkingWord);
-            
-            while (workingBlocks.length) {
-                workingBlocks.forEach(wB => {
+            // console.time('wordDone');
+            for (let i = 0; i < workingBlocks.length; i++) {
+                const wB = workingBlocks[i];
+                do {
                     const blockLine = wB.getCurrentLine();
                     if (blockLine === null) {
                         return;
                     }
                     const [word, path, freq, tf] = blockLine.split(' ');
-                    if (!fullReverseIndexDict[word]) {
-                        fullReverseIndexDict[word] = {};
-                    }
-                    fullReverseIndexDict[word][path] = {
+                    wordO[path] = {
                         count: freq,
                         tf
                     };
-                    if (!batchReverseIndexDict[word]) {
-                        batchReverseIndexDict[word] = {};
-                    }
-                    batchReverseIndexDict[word][path] = {
-                        count: freq,
-                        tf
-                    };
-                });
-                workingBlocks = workingBlocks.filter(wB => wB.getNextWord() === currentWorkingWord);
+                } while (wB.getNextWord() === currentWorkingWord);
             }
     
-            await finalizeWord(currentWorkingWord);
+            await finalizeWord(wordO, currentWorkingWord);
+            // console.timeEnd('wordDone');
             
             blocks.forEach(b => {
                 const cW = b.getCurrentWord();
@@ -197,17 +145,10 @@ function BlockWrapper(blockPath) {
             
             wordsQueue.sort((a, b) => a.localeCompare(b));
             
-            if (Object.keys(batchReverseIndexDict).length >= MAX_WORDS) {
-                flushIndexes();
-            }
         }
-        
-        flushIndexes();
         
         blocks.forEach(b => b.cleanup());
         
-        fs.appendFileSync(rev_idx, JSON.stringify(fullReverseIndexDict));
-        fullReverseIndexDict = {};
         msgCb();
         console.log('ALL DONE');
     }

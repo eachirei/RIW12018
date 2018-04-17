@@ -20,10 +20,11 @@ function isAlphaNum(character) {
 }
 
 function addWordToMap(freqDict, word) {
-    if (!freqDict[word]) {
-        freqDict[word] = 0;
+    if (!freqDict.has(word)) {
+        freqDict.set(word, 0);
     }
-    freqDict[word]++
+    const wC = freqDict.get(word);
+    freqDict.set(word, wC + 1);
 }
 
 /**
@@ -54,9 +55,9 @@ function processWord(freqDict, currentWord) {
 }
 
 function computeTF(freqDict) {
-    const noWords = Object.values(freqDict).reduce((accum, count) => accum + count, 0);
+    const noWords = [...freqDict.values()].reduce((accum, count) => accum + count, 0);
     const TFed = {};
-    for (const [word, count] of Object.entries(freqDict)) {
+    for (const [word, count] of freqDict) {
         TFed[word] = {
             count,
             tf: count / noWords
@@ -113,7 +114,7 @@ function computeTF(freqDict) {
             } catch (err) {
                 console.error(err);
             }
-            freqDict = {};
+            freqDict.clear();
         }
         
         const filePath = message.data;
@@ -126,7 +127,7 @@ function computeTF(freqDict) {
         });
         
         let currentWord = '';
-        let freqDict = {};
+        let freqDict = new Map();
         
         readStream.on('data', (dataBuf) => {
             console.log(`chunk for ${filePath}`);
