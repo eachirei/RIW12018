@@ -67,24 +67,25 @@ function BlockWrapper(blockPath) {
     const mongoConnection = await MongoClient.connect('mongodb://localhost:27017');
     const db = await mongoConnection.db('RIW');
     const reverseIndexCollection = await db.collection('reverse-index');
+    const directIndexCollection = await db.collection('direct-index');
     
     const commChannel = await RabbitWrapper({
         from: 'FullReverseIndex',
         messageHandler: fullReverseIndex
     });
     
-    function fullReverseIndex(message, msgCb) {
+    async function fullReverseIndex(message, msgCb) {
         const {docsCount, blocks: pathsArr} = message;
         console.log(pathsArr);
         let mongoTime = 0;
         
-        function finalizeWord(revForWord, word) {
+        async function finalizeWord(revForWord, word) {
             const docsWithWordCount = Object.keys(revForWord).length;
             const idf = Math.log(docsCount / (1 + docsWithWordCount));
             // console.time('updateDB');
             const now = Date.now();
             // try {
-            reverseIndexCollection.updateOne({
+            await reverseIndexCollection.updateOne({
                     word
                 }, {
                     "$set": {
@@ -137,7 +138,7 @@ function BlockWrapper(blockPath) {
                 } while (wB.getNextWord() === currentWorkingWord);
             }
     
-            finalizeWord(wordO, currentWorkingWord);
+            await finalizeWord(wordO, currentWorkingWord);
             // console.timeEnd('wordDone');
             
             blocks.forEach(b => {
@@ -152,6 +153,44 @@ function BlockWrapper(blockPath) {
         }
         
         blocks.forEach(b => b.cleanup());
+        
+        const docs = await directIndexCollection.distinct('path');
+        
+        const docsWithMod = await reverseIndexCollection.aggregate([
+            {"$unwind": "$paths"},
+            {"$match": {"paths.path": {"$in": docs}}},
+            {"$unwind": "$paths"},
+            {
+                "$project": {
+                    "path": "$paths.path",
+                    "tfidf": "$paths.tfidf",
+                    "word": 1
+                }
+            },
+            {
+                "$group": {
+                    "_id": {"path": "$path"},
+                    "mod": {"$sum": {"$multiply": ["$tfidf", "$tfidf"]}},
+                }
+            },
+            {
+                "$project": {
+                    "path": "$_id.path",
+                    "mod": {"$sqrt": "$mod"},
+                    "_id": 0
+                }
+            }
+        ]).toArray();
+        
+        await Promise.all(docsWithMod.map(docO => {
+            return directIndexCollection.updateOne({
+                path: docO.path
+            }, {
+                "$set": {
+                    "mod": docO.mod
+                }
+            });
+        }));
         
         msgCb();
         console.timeEnd('startReverse');

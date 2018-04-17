@@ -139,17 +139,18 @@ async function getReverseIdx(query) {
     const returnData = {
         words: {},
         pathsWithModulus: {},
-        wordsWithIDFs: []
+        wordsWithIDFs: {}
     };
     try {
         console.time('firstMongo');
-        returnData.wordsWithIDFs = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
+        const tempWordsIDFs = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
             _id: 0,
             "paths.count": 0
         }).toArray();
         console.timeEnd('firstMongo');
         const pathsArr = [];
-        returnData.wordsWithIDFs.forEach(wIdx => {
+        tempWordsIDFs.forEach(wIdx => {
+            returnData.wordsWithIDFs[wIdx.word] = wIdx;
             returnData.words[wIdx.word] = wIdx.paths.map(p => p.path);
             wIdx.paths.forEach(p => {
                 if (pathsArr.indexOf(p.path) === -1) {
@@ -158,33 +159,14 @@ async function getReverseIdx(query) {
             });
         });
         console.time('secondMongo');
-        const tempPaths = await reverseIndexCollection.aggregate([
-            {"$unwind": "$paths"},
-            {"$match": {"paths.path": {"$in": pathsArr}}},
-            {"$unwind": "$paths"},
-            {
-                "$project": {
-                    "path": "$paths.path",
-                    "tfidf": "$paths.tfidf",
-                    "word": 1
-                }
-            },
-            {
-                "$group": {
-                    "_id": {"path": "$path"},
-                    "mod": {"$sum": {"$multiply": ["$tfidf", "$tfidf"]}},
-                }
-            },
-            {
-                "$project": {
-                    "path": "$_id.path",
-                    "mod": {"$sqrt": "$mod"},
-                    "_id": 0
-                }
-            }
-        ]).toArray();
+        const docs = await directIndexCollection.find({path: {$in: pathsArr}}, {
+            _id: 0,
+            "words": 0
+        }).toArray();
         console.timeEnd('secondMongo');
-        tempPaths.forEach(tP => returnData.pathsWithModulus[tP.path] = tP.mod);
+        docs.forEach(docO => {
+            returnData.pathsWithModulus[docO.path] = docO.mod;
+        });
     } catch (err) {
         console.error(err);
     }
@@ -239,7 +221,7 @@ app.get('/search', async (req, res, next) => {
     
     searchTerms.forEach(procced => {
         if (!searchTermsMap[procced]) {
-            const idfO = mongoData.wordsWithIDFs.find(wO => wO.word === procced);
+            const idfO = mongoData.wordsWithIDFs[procced];
             searchTermsMap[procced] = {
                 count: 0,
                 tf: 0,
@@ -253,7 +235,7 @@ app.get('/search', async (req, res, next) => {
     const queryModulus = Math.sqrt(Object.values(searchTermsMap).reduce((accum, sTO) => accum + Math.pow(sTO.tf * sTO.idf, 2), 0));
     
     function getTFIDF(path, word) {
-        return ((mongoData.wordsWithIDFs.find(wI => wI.word === word) || {paths: []}).paths.find(pO => pO.path === path) || {}).tfidf || 0;
+        return ((mongoData.wordsWithIDFs[word] || {paths: []}).paths.find(pO => pO.path === path) || {}).tfidf || 0;
     }
     
     res.json(resultDocs.map(path => {
