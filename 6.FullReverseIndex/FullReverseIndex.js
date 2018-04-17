@@ -73,16 +73,18 @@ function BlockWrapper(blockPath) {
         messageHandler: fullReverseIndex
     });
     
-    async function fullReverseIndex(message, msgCb) {
+    function fullReverseIndex(message, msgCb) {
         const {docsCount, blocks: pathsArr} = message;
         console.log(pathsArr);
-    
-        async function finalizeWord(revForWord, word) {
+        let mongoTime = 0;
+        
+        function finalizeWord(revForWord, word) {
             const docsWithWordCount = Object.keys(revForWord).length;
             const idf = Math.log(docsCount / (1 + docsWithWordCount));
             // console.time('updateDB');
-            try {
-                await reverseIndexCollection.updateOne({
+            const now = Date.now();
+            // try {
+            reverseIndexCollection.updateOne({
                     word
                 }, {
                     "$set": {
@@ -94,12 +96,14 @@ function BlockWrapper(blockPath) {
                         idf: idf
                     }
                 }, {upsert: true});
-            } catch (err) {
-                console.error(err);
-            }
+            // } catch (err) {
+            //     console.error(err);
+            // }
+            mongoTime += Date.now() - now;
             // console.timeEnd('updateDB');
         }
         
+        console.time('startReverse');
         const blocks = pathsArr.map((p) => new BlockWrapper(p));
         
         const firstWords = blocks.map(b => b.getNextWord());
@@ -133,7 +137,7 @@ function BlockWrapper(blockPath) {
                 } while (wB.getNextWord() === currentWorkingWord);
             }
     
-            await finalizeWord(wordO, currentWorkingWord);
+            finalizeWord(wordO, currentWorkingWord);
             // console.timeEnd('wordDone');
             
             blocks.forEach(b => {
@@ -150,6 +154,8 @@ function BlockWrapper(blockPath) {
         blocks.forEach(b => b.cleanup());
         
         msgCb();
+        console.timeEnd('startReverse');
+        console.log('mongo time ' + mongoTime);
         console.log('ALL DONE');
     }
 })();
