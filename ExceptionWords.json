@@ -1,14 +1,12 @@
 {
-	"JSOUP": true,
-	"JavaScript": true,
-	"CSS": true,
-	"jquery": true,
-	"Java": true,
-	"HTML": true,
 	"jsoup": true,
-	"HTML5": true,
+	"javascript": true,
+	"css": true,
+	"jquery": true,
+	"java": true,
+	"html": true,
+	"html5": true,
 	"wikipedia": true,
-	"Wikipedia": true,
-	"MIT": true,
-	"appendElement": true
+	"mit": true,
+	"appendelement": true
 }

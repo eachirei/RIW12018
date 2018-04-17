@@ -34,9 +34,9 @@ function procWord(word) {
 }
 
 const opMaps = {
-    'AND': true,
-    'OR': true,
-    'NOT': true
+    'and': true,
+    'or': true,
+    'not': true
 };
 
 function opIniter(revIdx) {
@@ -52,7 +52,7 @@ function opIniter(revIdx) {
     }
     
     return {
-        'AND': (a, b) => {
+        'and': (a, b) => {
             if (typeof a === 'string') {
                 a = getRevFilesForWord(a);
             }
@@ -76,7 +76,7 @@ function opIniter(revIdx) {
             }
             return a;
         },
-        'OR': (a, b) => {
+        'or': (a, b) => {
             if (typeof a === 'string') {
                 a = getRevFilesForWord(a);
             }
@@ -98,7 +98,7 @@ function opIniter(revIdx) {
             }
             return b;
         },
-        'NOT': (a, b) => {
+        'not': (a, b) => {
             if (typeof a === 'string') {
                 a = getRevFilesForWord(a);
             }
@@ -117,6 +117,7 @@ function opIniter(revIdx) {
 }
 
 async function getReverseIdx(query) {
+    query = query.split(' ').map(w => w ? w.toLowerCase() : w).join(' ');
     const splitQuery = query.split(' ');
     const queryTerms = [];
     for (let i = 0; i < splitQuery.length; i++) {
@@ -141,10 +142,12 @@ async function getReverseIdx(query) {
         wordsWithIDFs: []
     };
     try {
+        console.time('firstMongo');
         returnData.wordsWithIDFs = await reverseIndexCollection.find({word: {"$in": queryTerms}}, {
             _id: 0,
             "paths.count": 0
         }).toArray();
+        console.timeEnd('firstMongo');
         const pathsArr = [];
         returnData.wordsWithIDFs.forEach(wIdx => {
             returnData.words[wIdx.word] = wIdx.paths.map(p => p.path);
@@ -154,6 +157,7 @@ async function getReverseIdx(query) {
                 }
             });
         });
+        console.time('secondMongo');
         const tempPaths = await reverseIndexCollection.aggregate([
             {"$unwind": "$paths"},
             {"$match": {"paths.path": {"$in": pathsArr}}},
@@ -179,6 +183,7 @@ async function getReverseIdx(query) {
                 }
             }
         ]).toArray();
+        console.timeEnd('secondMongo');
         tempPaths.forEach(tP => returnData.pathsWithModulus[tP.path] = tP.mod);
     } catch (err) {
         console.error(err);
@@ -226,7 +231,7 @@ app.get('/search', async (req, res, next) => {
         searchTerms.unshift(queryApplier[op](a, b));
     }
     
-    const resultDocs = typeof searchTerms[0] === 'string' ? (mongoData.pathsWithModulus[procWord(searchTerms[0])] || []) : searchTerms[0];
+    const resultDocs = typeof searchTerms[0] === 'string' ? (mongoData.words[procWord(searchTerms[0])] || []) : searchTerms[0];
     
     searchTerms = searchQuery.split(' ').filter(sT => !opMaps[sT]).map(sT => procWord(sT)).filter(sT => sT);
     

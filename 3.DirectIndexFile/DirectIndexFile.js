@@ -33,7 +33,6 @@ function addWordToMap(freqDict, word) {
  * @return {string}
  */
 function processCommonWord(word) {
-    word = word.toLowerCase();
     word = stem(word);
     return word;
 }
@@ -42,6 +41,7 @@ function processWord(freqDict, currentWord) {
     if (currentWord === '') {
         return;
     }
+    currentWord = currentWord.toLowerCase();
     if (exceptionsMap[currentWord]) {
         return addWordToMap(freqDict, currentWord);
     }
