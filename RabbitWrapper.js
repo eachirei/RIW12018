@@ -20,7 +20,7 @@ const rabbitExchange = 'RIW';
 /**
  * @name MyRabbitWrapper
  * @type {Object}
- * @property {function(Object, function(Object, Object))} sendMessage
+ * @property {function(Object, function(Object, Object))|null} sendMessage
  * @property {function()} close
  * @property {function()} closeConsumer
  * @property {function()} closePublisher

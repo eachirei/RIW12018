@@ -82,7 +82,8 @@ function computeTF(freqDict) {
         }
     
         async function finalizeIndex() {
-            const htmlFilePath = path.join(path.dirname(filePath), `${path.basename(filePath, '.txt')}.html`);
+            const fileBaseName = path.basename(filePath, '.txt');
+            const htmlFilePath = path.join(path.dirname(filePath), `${fileBaseName + (fileBaseName === 'txt' ? '' : '.html')}`); // for dataset
             const TFed = computeTF(freqDict);
             try {
                 await directIndexCollection.updateOne({
