@@ -21,16 +21,9 @@ const RabbitWrapper = require('../RabbitWrapper');
             messageHandler: wtv
         });
         
-        const refPath = `idx_ref.txt`;
-        try {
-            fs.truncateSync(refPath);
-        } catch (err) {
-            console.log('File not existing, no truncate required');
-        }
-        
         let workingBatch = {};
         let idxPathDict = {};
-        const MAX_FILES_INDEX = 30;
+        const MAX_FILES_INDEX = 65;
         const idx_dir = 'idx_dir';
         let idxCount = 0;
         let stopReceiving = false;
@@ -52,13 +45,6 @@ const RabbitWrapper = require('../RabbitWrapper');
                 console.error(errWriting);
             }
             idxCount++;
-            for (const htmlFP in workingBatch) {
-                try {
-                    fs.appendFileSync(refPath, `${htmlFP} ${path.join(__dirname, idxPath)}\n`);//weird bug when trying to write full reference dict
-                } catch (errWriting) {
-                    console.error(errWriting);
-                }
-            }
             idxPathDict[idxPath] = true;
             workingBatch = {};
             return commChannel.sendMessage({data: idxPath}, (err) => {
